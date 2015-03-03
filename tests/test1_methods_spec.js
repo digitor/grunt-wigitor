@@ -14,12 +14,14 @@ describe("test 1 - wigitor testable methods", function() {
 		it("should clear test between custom tags", function() {
 
 			var path = "dist/test1/clearReadMeAdditions/"
-				,con = testableMethods.constants;
+				,cons = testableMethods.constants
+				,CONTENT = "\nxxxxx\n";
 
-			fse.outputFileSync(path+"README.md", "# TEST\n"+con.START_ADD + "\nxxxxx\n" + con.END_ADD );
+			fse.outputFileSync(path+"README.md", "# TEST\n"+cons.START_ADD + CONTENT + cons.END_ADD );
 
 			testableMethods.clearReadMeAdditions(path);
-			expect(1).toEqual(1);
+
+			expect( fse.readFileSync(path+"README.md").toString().indexOf(CONTENT) ).toEqual(-1);
 		});
 	});
 

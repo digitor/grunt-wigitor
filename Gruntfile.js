@@ -56,8 +56,9 @@ module.exports = function( grunt ) {
         }
     });
 
+    grunt.registerTask("test", ['jshint', 'jasmine_node:wigitor'] );
 
-    grunt.registerTask('default', ['jshint', 'jasmine_node:wigitor', 'wigitor']
+    grunt.registerTask('default', ['test', 'wigitor']
                             .concat( grunt.option("dirty") ? [] : ["clean:tests"] )
                         );
 
