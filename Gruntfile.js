@@ -4,6 +4,34 @@ module.exports = function( grunt ) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json')
 
+        ,jshint: {
+          all: [
+            'Gruntfile.js'
+            ,'tasks/*.js'
+          ],
+          options: {
+            jshintrc: '.jshintrc'
+          },
+        }
+
+        // Unit tests.
+        ,jasmine_node: {
+            wigitor: {
+                src: ["tests/**/*spec.js"] // for coverage
+                ,options: {
+                    coverage: {} // using istanbul defaults
+                    ,specFolders: ['tests']
+                    ,captureExceptions: true
+                    ,showColors: true
+                    ,forceExit: true
+                }
+            }
+        }
+
+        ,clean: {
+            tests: ["dist:test1"]
+        }
+
         ,wigitor: {
             options: {
                 pathToRoot: ""
@@ -28,7 +56,14 @@ module.exports = function( grunt ) {
         }
     });
 
-    grunt.registerTask("default", ["wigitor"]);
+
+    grunt.registerTask('default', ['jshint', 'jasmine_node:wigitor', 'wigitor']
+                            .concat( grunt.option("dirty") ? [] : ["clean:tests"] )
+                        );
 
     grunt.loadTasks('tasks');
+
+    grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-jasmine-node-coverage');
 }

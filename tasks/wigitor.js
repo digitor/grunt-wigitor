@@ -3,25 +3,28 @@ module.exports = function(grunt) {
 
 	var NS = "wigitor"
 		,ejs = require("ejs")
-        ,_ = require( 'lodash-node' );
+		,_ = require( 'lodash-node' );
+
+	var START_ADD = "<!--START_WIGITOR_ADDITIONS-->"
+		,END_ADD = "<!--END_WIGITOR_VIEWER_ADDITIONS-->";
 
 	grunt.registerMultiTask( NS, "Demo generator for CRP 'widgets'", function() {
 
 		var config = this.options({
 			pluginDir: "custom_modules/"+NS+"/"
-        	,host: ""
-        	,pathToRoot: "../../"
-        	,pathToWidgets: "widgets/"
-        	,gitHubMsg: ('\n\n## ![Github](resources/img/octocat.png) Github\n'+
-                        'You may need to switch branches to see the latest version.\n'+
-                        '\n[master - widgets/xxxxwgt](https://github.com/digitor/wigitor/tree/master/resources/widgets/xxxxwgt)')
-        	,configName: null // will default to widget name + "Config"
-        	,cleanDest: false
-        	,modifyReadMes: true
-        	,justContent: false
-        	,omitScriptTags: false
-        	,deps: null
-        	,multiProps: false
+			,host: ""
+			,pathToRoot: "../../"
+			,pathToWidgets: "widgets/"
+			,gitHubMsg: ('\n\n## ![Github](resources/img/octocat.png) Github\n'+
+						'You may need to switch branches to see the latest version.\n'+
+						'\n[master - widgets/xxxxwgt](https://github.com/digitor/wigitor/tree/master/resources/widgets/xxxxwgt)')
+			,configName: null // will default to widget name + "Config"
+			,cleanDest: false
+			,modifyReadMes: true
+			,justContent: false
+			,omitScriptTags: false
+			,deps: null
+			,multiProps: false
 		});
 
 		// add slash is one doesn't exist
@@ -46,7 +49,7 @@ module.exports = function(grunt) {
 		// cleans out the old first
 		if( config.cleanDest && grunt.file.exists(fileObj.dest) ) grunt.file.delete( fileObj.dest, {force:true} );
 
-		var imgFiles 		= grunt.file.expand({ cwd: config.pluginDir + "resources" }, "img/*");
+		var imgFiles = grunt.file.expand({ cwd: config.pluginDir + "resources" }, "img/*");
 		
 		_.forEach( imgFiles, function(relPath) {
 			grunt.file.copy( config.pluginDir + "resources/" + relPath, fileObj.dest + "/"+relPath );
@@ -63,9 +66,7 @@ module.exports = function(grunt) {
 			}
 		}
 
-		var START_ADD = "<!--START_WIGITOR_ADDITIONS-->"
-			,END_ADD = "<!--END_WIGITOR_VIEWER_ADDITIONS-->"
-			,clearAdditions = !!grunt.option("clear");
+		
 
 		_.forEach( fileObj.src, function(src) {
 
@@ -90,19 +91,7 @@ module.exports = function(grunt) {
 			var readmeSrc = src + "/README.md"
 				,readmeContent = grunt.file.read( readmeSrc );
 
-
-			if( clearAdditions === true ) {
-
-				// strip out old content
-				var rx = new RegExp( START_ADD + "[\\d\\D]*?" + END_ADD, "g" );
-				readmeContent = readmeContent.replace(rx, "");
-
-				// stops line breaks getting too big
-				readmeContent = readmeContent.split("\n\n\n\n").join("\n");
-
-				// write it to disk
-				grunt.file.write( readmeSrc, readmeContent );
-			}
+			if( grunt.option("clear") ) clearReadMeAdditions( src );
 
 			// if github links not in README.md, append them
 			var readmeAdditions = config.gitHubMsg;
@@ -168,7 +157,7 @@ module.exports = function(grunt) {
 			}
 		});
 		
-        done();
+		done();
 	});
 
 
@@ -233,9 +222,9 @@ module.exports = function(grunt) {
 		// This is a polyfill for "grunt-ejs-render" method
 		ejsConfig.helpers = {
 			renderPartial: function( path, item ) {
-				var ejsConfig = _.clone( standardConfig );
-				ejsConfig.filename = src + "/x";
-				item = _.extend( item, ejsConfig );
+				var thisEjsConfig = _.clone( standardConfig );
+				thisEjsConfig.filename = src + "/x";
+				item = _.extend( item, thisEjsConfig );
 				
 				return ejs.render( grunt.file.read( config.pathToRoot + path ), item );
 			}
@@ -271,21 +260,47 @@ module.exports = function(grunt) {
 		// console.log( grunt.file.exists( templatePath ), templatePath );
 		if( grunt.file.exists( templatePath ) ) {
 
-			var ejsConfig = _.clone( standardConfig );
+			var thisEjsConfig = _.clone( standardConfig );
 
-			ejsConfig.containerClasses = demoOpts["container-classes"];
-			ejsConfig.filename = config.pathToRoot + src;
-			ejsConfig.pagetitle = "Widget '"+wgtName+"' Demo";
-			ejsConfig.pagedescription = "Widget '"+wgtName+"' Demo";
-			ejsConfig.name = "styleguide";
-			ejsConfig.wgtName = wgtName;
-			ejsConfig.wgtContent = wgtContent;
+			thisEjsConfig.containerClasses = demoOpts["container-classes"];
+			thisEjsConfig.filename = config.pathToRoot + src;
+			thisEjsConfig.pagetitle = "Widget '"+wgtName+"' Demo";
+			thisEjsConfig.pagedescription = "Widget '"+wgtName+"' Demo";
+			thisEjsConfig.name = "styleguide";
+			thisEjsConfig.wgtName = wgtName;
+			thisEjsConfig.wgtContent = wgtContent;
 
-			var rendered = ejs.render( grunt.file.read(templatePath), ejsConfig);
+			var rendered = ejs.render( grunt.file.read(templatePath), thisEjsConfig);
 
 			// console.log( dest + "/"+ wgtName + "-" + exampleName+".html" );
 			grunt.file.write( dest + "/"+ wgtName + "-" + exampleName+".html", rendered );
 		}
 	}
 
+
+	function clearReadMeAdditions(src) {
+
+		var readmeSrc = src + "/README.md"
+			,readmeContent = grunt.file.read( readmeSrc );
+
+		// strip out old content
+		var rx = new RegExp( START_ADD + "[\\d\\D]*?" + END_ADD, "g" );
+		readmeContent = readmeContent.replace(rx, START_ADD + "\n" + END_ADD);
+
+		// stops line breaks getting too big
+		readmeContent = readmeContent.split("\n\n\n\n").join("\n");
+
+		// write it to disk
+		grunt.file.write( readmeSrc, readmeContent );
+	}
+
+	return {
+		tests: {
+			clearReadMeAdditions: clearReadMeAdditions
+			,constants: {
+				START_ADD: START_ADD
+				,END_ADD: END_ADD
+			}
+		}
+	}
 }

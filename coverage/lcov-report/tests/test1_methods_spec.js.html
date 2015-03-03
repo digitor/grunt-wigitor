@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for tests\test1_methods_spec.js</title>
+    <meta charset="utf-8">
+
+    <link rel="stylesheet" href="../prettify.css">
+
+    <link rel="stylesheet" href="../base.css">
+    <style type='text/css'>
+        div.coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class="header medium">
+    <h1>Code coverage report for <span class="entity">tests\test1_methods_spec.js</span></h1>
+    <h2>
+        
+        Statements: <span class="metric">50% <small>(11 / 22)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        
+        
+        Branches: <span class="metric">100% <small>(0 / 0)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        
+        
+        Functions: <span class="metric">42.86% <small>(3 / 7)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        
+        
+        Lines: <span class="metric">50% <small>(11 / 22)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        
+        Ignored: <span class="metric"><span class="ignore-none">none</span></span> &nbsp;&nbsp;&nbsp;&nbsp;
+    </h2>
+    <div class="path"><a href="../index.html">All files</a> &#187; <a href="index.html">tests\</a> &#187; test1_methods_spec.js</div>
+</div>
+<div class="body">
+<pre><table class="coverage">
+<tr><td class="line-count">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56</td><td class="line-coverage"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">'use strict';
+&nbsp;
+var _ = require("lodash-node")
+	,fse = require("fs-extra")
+	,parserlib = require("parserlib") // for linting CSS
+	,TEST_DIR = "./dist/test1/";
+&nbsp;
+describe("test 1 - wigitor testable methods", function() {
+&nbsp;
+	var wigitor = require("../tasks/wigitor.js")
+		,testableMethods = wigitor( require("grunt") ).tests;
+&nbsp;
+	describe("clearReadMeAdditions()", function() {
+		it("should clear test between custom tags", function() {
+&nbsp;
+			var path = "dist/test1/clearReadMeAdditions/"
+				,con = testableMethods.constants;
+&nbsp;
+			fse.outputFileSync(path+"README.md", "# TEST\n"+con.START_ADD + "\nxxxxx\n" + con.END_ADD );
+&nbsp;
+			testableMethods.clearReadMeAdditions(path);
+			expect(1).toEqual(1);
+		});
+	});
+&nbsp;
+&nbsp;
+<span class="fstat-no" title="function not covered" >	function lintCSS( done, returnedStr ) {</span>
+		// Now we lint the CSS
+<span class="cstat-no" title="statement not covered" >		var parser = new parserlib.css.Parser();</span>
+&nbsp;
+		// will get changed to true in error handler if errors detected
+<span class="cstat-no" title="statement not covered" >		var errorsFound = false;</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >		parser.addListener("error", <span class="fstat-no" title="function not covered" >function(event){</span></span>
+<span class="cstat-no" title="statement not covered" >		    console.log("Parse error: " + event.message + " (" + event.line + "," + event.col + ")", "error");</span>
+<span class="cstat-no" title="statement not covered" >		    errorsFound = true;</span>
+		});
+&nbsp;
+<span class="cstat-no" title="statement not covered" >		parser.addListener("endstylesheet", <span class="fstat-no" title="function not covered" >function(){</span></span>
+<span class="cstat-no" title="statement not covered" >		    console.log("Finished parsing style sheet");</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >			expect( errorsFound ).toBe( false );</span>
+&nbsp;
+			// finish the test
+<span class="cstat-no" title="statement not covered" >		    done();</span>
+		});
+		
+<span class="cstat-no" title="statement not covered" >		parser.parse( returnedStr );</span>
+	}
+&nbsp;
+&nbsp;
+<span class="fstat-no" title="function not covered" >	function trimAllWhite(str) {</span>
+<span class="cstat-no" title="statement not covered" >		return str.replace(/\s+/g, '');</span>
+	}
+});
+&nbsp;</pre></td></tr>
+</table></pre>
+
+</div>
+<div class="footer">
+    <div class="meta">Generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Mar 03 2015 18:51:17 GMT+1100 (AUS Eastern Daylight Time)</div>
+</div>
+
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+
+<script src="../sorter.js"></script>
+</body>
+</html>
