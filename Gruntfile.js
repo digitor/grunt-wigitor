@@ -8,7 +8,7 @@ module.exports = function( grunt ) {
             options: {
                 pathToRoot: ""
                 ,pathToWidgets: "resources/widgets/" // immediate containing folder must be 'widgets'
-                ,modifyReadMes: false
+                ,modifyReadMes: true
                 ,justContent: true
                 ,omitScriptTags: true
                 ,pluginDir: "../custom_modules/widgetviewer/"
@@ -20,7 +20,7 @@ module.exports = function( grunt ) {
                 ,options: {
                     "deps": ["handlebarswgt"]
                     ,"multi-props": true
-                    ,"githubMsg": ('\n\n## ![Github](resources/img/octocat.png) Github\n'+
+                    ,"gitHubMsg": ('\n\n## ![Github](resources/img/octocat.png) Github\n'+
                                     'You may need to switch branches to see the latest version.\n'+
                                     '\n[master - widgets/ejswgt](https://github.com/digitor/wigitor/tree/master/resources/widgets/ejswgt)')
                 }

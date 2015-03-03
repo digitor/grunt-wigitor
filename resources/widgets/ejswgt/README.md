@@ -1,6 +1,9 @@
+# EJS Widget (ejswgt)
+
+## Description
 Sample widget to show EJS working
 
-@tags [ejswgt, ejs]
-
-<!--START_WIGITOR_VIEWER_ADDITIONS-->
+<!--START_WIGITOR_ADDITIONS-->
 <!--END_WIGITOR_VIEWER_ADDITIONS-->
+
+@tags [ejswgt, ejs]

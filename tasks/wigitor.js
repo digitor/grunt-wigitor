@@ -12,6 +12,9 @@ module.exports = function(grunt) {
         	,host: ""
         	,pathToRoot: "../../"
         	,pathToWidgets: "widgets/"
+        	,gitHubMsg: ('\n\n## ![Github](resources/img/octocat.png) Github\n'+
+                        'You may need to switch branches to see the latest version.\n'+
+                        '\n[master - widgets/xxxxwgt](https://github.com/digitor/wigitor/tree/master/resources/widgets/xxxxwgt)')
         	,configName: null // will default to widget name + "Config"
         	,cleanDest: false
         	,modifyReadMes: true
@@ -102,10 +105,12 @@ module.exports = function(grunt) {
 			}
 
 			// if github links not in README.md, append them
-			var readmeAdditions;
-			if( config.modifyReadMes === true && readmeContent.indexOf(START_ADD) === -1 ) {
-				readmeAdditions = config.githubMsg;
-			}
+			var readmeAdditions = config.gitHubMsg;
+			// if( config.modifyReadMes === true && readmeContent.indexOf(START_ADD) === -1 ) {
+				// readmeAdditions = config.gitHubMsg;
+			// }
+
+			// console.log(readmeContent.indexOf(START_ADD))
 
 			var ejsConfig = _.clone( standardConfig );
 
@@ -119,7 +124,7 @@ module.exports = function(grunt) {
 
 						var exampleName = filename.slice(0, filename.length - 5 );
 
-						if( config.modifyReadMes === true && readmeContent.indexOf( START_ADD ) === -1 )
+						if( config.modifyReadMes === true )
 							readmeAdditions = getDemoLink( wgtName, exampleName, readmeAdditions, abspath, fileObj.dest );
 
 						// Allows properties to accululate over each json file
@@ -136,7 +141,7 @@ module.exports = function(grunt) {
 				}
 			} else { // If no 'properties' dir, assume config is not needed for the demo
 				var exampleName = "example1";
-				if( config.modifyReadMes === true && readmeContent.indexOf( START_ADD ) === -1 )
+				if( config.modifyReadMes === true )
 					readmeAdditions = getDemoLink( wgtName, exampleName, readmeAdditions, fileObj.dest );
 				
 				writeDemo( config, wgtName, wgtOpts, exampleName, ejsConfig, standardConfig, src, fileObj.dest );
@@ -144,11 +149,22 @@ module.exports = function(grunt) {
 			
 			if( config.modifyReadMes === true && readmeAdditions ) {
 				readmeAdditions = START_ADD + "\n\n" + readmeAdditions + "\n\n" + END_ADD;
-				var h2Index = readmeContent.indexOf("##");
-				if( h2Index === -1 )
-					grunt.file.write( readmeSrc, readmeContent + "\n" + readmeAdditions );
-				else
-					grunt.file.write( readmeSrc, readmeContent.slice(0, h2Index) + readmeAdditions + "\n" + readmeContent.slice(h2Index) );
+
+				if( readmeContent.indexOf(START_ADD) === -1 ) {
+
+					var h2Index = readmeContent.indexOf("##");
+					if( h2Index === -1 ) {
+						// if no custom tags, or h2, put it at the end
+						grunt.file.write( readmeSrc, readmeContent + "\n\n" + readmeAdditions );
+					} else {
+						// else look for h2 and place before it
+						grunt.file.write( readmeSrc, readmeContent.slice(0, h2Index) + readmeAdditions + "\n\n" + readmeContent.slice(h2Index) );
+					}
+				} else {
+					// if custom tags found, place between them
+					var arr = readmeContent.split(START_ADD);
+					grunt.file.write( readmeSrc, arr[0] + readmeAdditions + arr[1].split(END_ADD)[1] );
+				}
 			}
 		});
 		
