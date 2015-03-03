@@ -1,0 +1,4 @@
+node_modules
+resources/bower_components
+*DS_Store
+*.db

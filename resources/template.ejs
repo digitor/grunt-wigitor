@@ -1,0 +1,42 @@
+<% classes = "is-dt" %>
+<% include includes/inc_html %>
+	<head>
+
+		<% include includes/inc_head %>
+
+		<style>
+		.wgtr-lightbg {
+			background-color: white;
+		}
+		</style>
+
+		<script src="/resources/bower_components/requirejs-plugins/lib/require.js"></script>
+		<script>
+
+			require.config({
+					 baseUrl:"/"
+					,urlArgs: "v=0.1.0"
+					,paths: {
+						"ejswgt": "resources/widgets/ejswgt/js/main"
+						,"handlebarswgt": "resources/widgets/handlebarswgt/js/main"
+					}
+					,shim: {}
+			});
+
+			// Mocks.js takes care of conditions when calling init
+			require(["<%= wgtName %>"], function( wgt ) {
+				wgt.init( $("#wgt-example") );
+			});
+		</script>
+
+	</head>
+	<body>
+		
+		<div id="wgt-example">
+			<div class="<%= (containerClasses) %>">
+				<%- wgtContent %>
+			</div>		
+		</div>
+
+	</body>
+</html>
