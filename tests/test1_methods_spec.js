@@ -123,6 +123,14 @@ describe("test 1 - wigitor testable methods", function() {
 	});
 
 
+	describe("renderPartialHelper", function() {
+		it("should check that the function returns rendered markup", function() {
+			// var rendered = testableMethods.renderPartialHelper(  );
+			console.log( process.cwd() );
+		});
+	});
+
+
 	describe("writeTemplate()", function() {
 		var pluginCnf = {
 			justContent: false
