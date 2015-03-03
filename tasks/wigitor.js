@@ -8,6 +8,18 @@ module.exports = function(grunt) {
 	var START_ADD = "<!--START_WIGITOR_ADDITIONS-->"
 		,END_ADD = "<!--END_WIGITOR_VIEWER_ADDITIONS-->";
 
+	var standardPageCnf = {
+		_:_
+		,java_logic:""
+		,device: "desktop"
+		,page_vars: {
+			isLoggedIn: true
+			,hasSidebar: true
+			,isLocal: false
+		}
+	}
+
+
 	grunt.registerMultiTask( NS, "Demo generator for CRP 'widgets'", function() {
 
 		var config = this.options({
@@ -21,7 +33,7 @@ module.exports = function(grunt) {
 			,configName: null // will default to widget name + "Config"
 			,cleanDest: false
 			,modifyReadMes: true
-			,justContent: false
+			,justContent: false // if false, will render with page template
 			,omitScriptTags: false
 			,deps: null
 			,multiProps: false
@@ -54,23 +66,10 @@ module.exports = function(grunt) {
 		_.forEach( imgFiles, function(relPath) {
 			grunt.file.copy( config.pluginDir + "resources/" + relPath, fileObj.dest + "/"+relPath );
 		});
-
-		var standardConfig = {
-			_:_
-			,java_logic:""
-			,device: "desktop"
-			,page_vars: {
-				isLoggedIn: true
-				,hasSidebar: true
-				,isLocal: false
-			}
-		}
-
 		
 
 		_.forEach( fileObj.src, function(src) {
 
-			// console.log( src );
 
 			var wgtOpts = grunt.file.readJSON( src + "/options.json" );
 
@@ -81,11 +80,11 @@ module.exports = function(grunt) {
 
 			var wgtName = src.split("widgets/")[1].split("/")[0];
 
+			widgetNameChecks( wgtName );
 
 			if( !wgtOpts["configName"] ) {
-				grunt.log.error( "Widgets must define their 'configName' inside their 'options.json' file. "+
+				throw new Error( "Widgets must define their 'configName' inside their 'options.json' file. "+
 					"Stopping demo generaton for " + wgtName + "." );
-				return;
 			}
 
 			var readmeSrc = src + "/README.md"
@@ -93,15 +92,9 @@ module.exports = function(grunt) {
 
 			if( grunt.option("clear") ) clearReadMeAdditions( src );
 
-			// if github links not in README.md, append them
 			var readmeAdditions = config.gitHubMsg;
-			// if( config.modifyReadMes === true && readmeContent.indexOf(START_ADD) === -1 ) {
-				// readmeAdditions = config.gitHubMsg;
-			// }
 
-			// console.log(readmeContent.indexOf(START_ADD))
-
-			var ejsConfig = _.clone( standardConfig );
+			var ejsConfig = _.clone( standardPageCnf );
 
 			// Use properties ".json" files to generate demos
 			if( grunt.file.exists(src + "/properties") ) {
@@ -120,20 +113,20 @@ module.exports = function(grunt) {
 						if( config.multiProps === true && multiPropsConfig )	thisEjsConfig = multiPropsConfig;
 						else													thisEjsConfig = ejsConfig;
 
-						multiPropsConfig = writeDemo( config, wgtName, wgtOpts, exampleName, thisEjsConfig, standardConfig, src, fileObj.dest, abspath );
+						multiPropsConfig = writeDemo( config, wgtName, wgtOpts, exampleName, thisEjsConfig, standardPageCnf, src, fileObj.dest, abspath );
 					}
 				}); // end grunt.file.recurse
 
 				if( multiPropsConfig ) {
 					// console.log( multiPropsConfig );
-					writeTemplate( config, wgtName, wgtOpts, "multiprops", standardConfig, src, fileObj.dest, multiPropsConfig );
+					writeTemplate( config, wgtName, wgtOpts, "multiprops", standardPageCnf, src, fileObj.dest, multiPropsConfig );
 				}
 			} else { // If no 'properties' dir, assume config is not needed for the demo
 				var exampleName = "example1";
 				if( config.modifyReadMes === true )
 					readmeAdditions = getDemoLink( wgtName, exampleName, readmeAdditions, fileObj.dest );
 				
-				writeDemo( config, wgtName, wgtOpts, exampleName, ejsConfig, standardConfig, src, fileObj.dest );
+				writeDemo( config, wgtName, wgtOpts, exampleName, ejsConfig, standardPageCnf, src, fileObj.dest );
 			}
 			
 			if( config.modifyReadMes === true && readmeAdditions ) {
@@ -188,82 +181,85 @@ module.exports = function(grunt) {
 	}
 
 
-	function writeDemo( config, wgtName, wgtOpts, exampleName, ejsConfig, standardConfig, src, dest, propertiesJSONPath ) {
+	function writeDemo( config, wgtName, wgtOpts, exampleName, customPageCnf, standardPageCnf, src, dest, propertiesJSONPath ) {
 
-		ejsConfig.filename = src + "/x"; // just needs to 1 level deeper than the widget's directory, so using '/x'
+		customPageCnf.filename = src + "/x"; // just needs to be 1 level deeper than the widget's directory, so using '/x'
 
 		// If no properties, skip this (probably means there is no config for this widget)
 		if( propertiesJSONPath ) {
 			// allows the config to be accessed via the 'configName' value or by the wgt name
 
 			var propsConfig = grunt.file.readJSON( propertiesJSONPath );
-			ejsConfig[ wgtOpts.configName ] = propsConfig;
+			customPageCnf[ wgtOpts.configName ] = propsConfig;
 
 			if( config.multiProps === true ) {
-				ejsConfig[ wgtName ] = ejsConfig[ wgtName ] || {};
-				ejsConfig[ wgtName ][ exampleName ] = propsConfig;
+				customPageCnf[ wgtName ] = customPageCnf[ wgtName ] || {};
+				customPageCnf[ wgtName ][ exampleName ] = propsConfig;
 
-				// console.log( ejsConfig[ wgtName ] );
+				// console.log( customPageCnf[ wgtName ] );
 			}
 		}
 
-		if( config.deps ) {
-			_.forEach( config.deps, function( dep ) {
+		// add configs of other widgets that are specified in config.deps
+		if( config.deps ) customPageCnf = addDepsConfigs( customPageCnf, config.pathToWidgets, config.deps );
 
-				grunt.file.recurse( config.pathToWidgets + dep + "/properties", function(abspath, rootdir, subdir, filename) {
 
-					if( filename.lastIndexOf(".json") === filename.length - 5 )
-						ejsConfig[ dep ] = {};
-						ejsConfig[ dep ][ filename.split(".json")[0] ] = grunt.file.readJSON( abspath );
-				});
-			});
-		}
-
-		// This is a polyfill for "grunt-ejs-render" method
-		ejsConfig.helpers = {
-			renderPartial: function( path, item ) {
-				var thisEjsConfig = _.clone( standardConfig );
-				thisEjsConfig.filename = src + "/x";
-				item = _.extend( item, thisEjsConfig );
-				
-				return ejs.render( grunt.file.read( config.pathToRoot + path ), item );
-			}
-		}
-
-		// console.log( ejsConfig[ wgtName ] );
-		// If multiProps is set to true, then don't render anything, just return the ejsConfig so it can be added to
-		if( config.multiProps === true ) return ejsConfig;
+		// console.log( customPageCnf[ wgtName ] );
+		// If multiProps is set to true, then don't render anything, just return the customPageCnf so it can be added to
+		if( config.multiProps === true ) return customPageCnf;
 
 		// console.log( "writeTemplate" )
-		writeTemplate( config, wgtName, wgtOpts, exampleName, standardConfig, src, dest, ejsConfig );
+		writeTemplate( config, wgtName, wgtOpts, exampleName, standardPageCnf, src, dest, customPageCnf );
 	}
 
 
-	function writeTemplate( config, wgtName, wgtOpts, exampleName, standardConfig, src, dest, ejsConfig ) {
+	function addDepsConfigs( customPageCnf, pathToWidgets, deps ) {
+
+		_.forEach( deps, function( dep ) {
+
+			grunt.file.recurse( pathToWidgets + dep + "/properties", function(abspath, rootdir, subdir, filename) {
+
+				if( filename.lastIndexOf(".json") === filename.length - 5 )
+					customPageCnf[ dep ] = {};
+					customPageCnf[ dep ][ filename.split(".json")[0] ] = grunt.file.readJSON( abspath );
+			});
+		});
+
+		return customPageCnf;
+	}
+
+
+	function writeTemplate( pluginCnf, wgtName, wgtOpts, exampleName, standardPageCnf, wgtDir, dest, customPageCnf ) {
 
 		var demoOpts = wgtOpts[ NS ];
 
-		var wgtContent = ejs.render( grunt.file.read(src + "/markup.ejs"), ejsConfig );
-
-		if( config.omitScriptTags === true ) {
-			var rx = new RegExp("<script[\\d\\D]*?</script>", "g");
-			wgtContent = wgtContent.replace( rx, "");
+		// This is a polyfill for "grunt-ejs-render" method
+		customPageCnf.helpers = {
+			renderPartial: function( path, item ) {
+				renderPartialHelper( pluginCnf.pathToRoot, wgtDir, path, item );
+			}
 		}
 
-		if( config.justContent === true ) {
+		var wgtContent = ejs.render( grunt.file.read(wgtDir + "/markup.ejs"), customPageCnf );
+
+		if( pluginCnf.omitScriptTags === true ) wgtContent = removeScriptTags( wgtContent );
+
+
+		// If true, output the content as html, otherwise use the page template
+		if( pluginCnf.justContent === true ) {
 			// console.log( dest + "/"+ wgtName + "-" + exampleName+".html" );
 			grunt.file.write( dest + "/"+ wgtName + "-" + exampleName+".html", wgtContent );
 			return;
 		}
 
-		var templatePath = config.pluginDir + "resources/template.ejs"
+		var templatePath = pluginCnf.pluginDir + "resources/template.ejs"
 		// console.log( grunt.file.exists( templatePath ), templatePath );
 		if( grunt.file.exists( templatePath ) ) {
 
-			var thisEjsConfig = _.clone( standardConfig );
+			var thisEjsConfig = _.clone( standardPageCnf );
 
-			thisEjsConfig.containerClasses = demoOpts["container-classes"];
-			thisEjsConfig.filename = config.pathToRoot + src;
+			thisEjsConfig.containerClasses = demoOpts["container-classes"]; // allowed to be falsey
+			thisEjsConfig.filename = pluginCnf.pathToRoot + wgtDir;
 			thisEjsConfig.pagetitle = "Widget '"+wgtName+"' Demo";
 			thisEjsConfig.pagedescription = "Widget '"+wgtName+"' Demo";
 			thisEjsConfig.name = "styleguide";
@@ -275,6 +271,55 @@ module.exports = function(grunt) {
 			// console.log( dest + "/"+ wgtName + "-" + exampleName+".html" );
 			grunt.file.write( dest + "/"+ wgtName + "-" + exampleName+".html", rendered );
 		}
+	}
+
+
+	function renderPartialHelper(pathToRoot, wgtDir, path, item) {
+		// This is for 'ejs-render' helper includes, so needs standardPageCnf variables
+		var thisPageConfig = _.clone( standardPageCnf );
+		thisPageConfig.filename = wgtDir + "/x";
+		item = _.extend( {}, item, thisPageConfig );
+		
+		return ejs.render( grunt.file.read( pathToRoot + path ), item );
+	}
+
+
+	function widgetNameChecks( wgtName, parentMeth ) {
+
+		var thisMeth = parentMeth ? parentMeth +" -> widgetNameChecks() ->" : "widgetNameChecks() ->";
+
+		if( typeof wgtName !== "string" ) 
+			throw new Error(thisMeth+" 'wgtName' is not a string.");
+
+		if( wgtName.lastIndexOf("wgt") !== wgtName.length - 3 ) 
+			throw new Error(thisMeth+" 'wgtName' does not end in 'wgt'.");
+
+		if( wgtName.indexOf(" ") !== -1 ) 
+			throw new Error(thisMeth+" 'wgtName' has a space in it.");
+
+		if( wgtName.indexOf("_") !== -1 ) 
+			throw new Error(thisMeth+" 'wgtName' has a '_' character in it.");
+
+		if( wgtName.indexOf("-") !== -1 ) 
+			throw new Error(thisMeth+" 'wgtName' has a '-' character in it.");
+
+		if( wgtName.toLowerCase() !== wgtName ) 
+			throw new Error(thisMeth+" 'wgtName' has uppercase characters in it.");
+
+		if( wgtName[0].match(/[0-9]/) )
+			throw new Error(thisMeth +" 'wgtName' starts with a number. This is invalid due to CSS class name restrictions.");
+
+		_.forEach(wgtName, function(ch, i) {
+            if( !ch.match(/[a-z0-9]/) ) {
+                throw new Error(thisMeth +" 'wgtName' contains characters that are not CSS friendly. Stopping at character number "+i+" - '"+ch+"'.");
+            }
+        });
+	}
+
+
+	function removeScriptTags(markup) {
+		var rx = new RegExp("<script[\\d\\D]*?</script>", "g");
+		return markup.replace( rx, "");
 	}
 
 
@@ -297,9 +342,17 @@ module.exports = function(grunt) {
 	return {
 		tests: {
 			clearReadMeAdditions: clearReadMeAdditions
+			,removeScriptTags: removeScriptTags
+			,widgetNameChecks: widgetNameChecks
+			,writeTemplate: writeTemplate
+			,renderPartialHelper: renderPartialHelper // todo
+			,addDepsConfigs: addDepsConfigs
 			,constants: {
 				START_ADD: START_ADD
 				,END_ADD: END_ADD
+			}
+			,configs: {
+				standardPageCnf: _.clone( standardPageCnf ) // generates a fresh copy with each call
 			}
 		}
 	}

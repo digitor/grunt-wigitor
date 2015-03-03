@@ -1,14 +1,11 @@
-<% classes = "is-dt" %>
-<% include includes/inc_html %>
+<!DOCTYPE html>
+<html>
 	<head>
 
-		<% include includes/inc_head %>
+		<title><%= pagetitle %></title>
+		<meta name="description" content="<%= pagedescription %>" >
 
-		<style>
-		.wgtr-lightbg {
-			background-color: white;
-		}
-		</style>
+		<link rel="stylesheet" href="/resources/styles/mypage-<%= device %>.css">
 
 		<script src="/resources/bower_components/requirejs-plugins/lib/require.js"></script>
 		<script>
@@ -33,7 +30,7 @@
 	<body>
 		
 		<div id="wgt-example">
-			<div class="<%= (containerClasses) %>">
+			<div <%- containerClasses ? 'class="'+containerClasses+'"' : '' %> >
 				<%- wgtContent %>
 			</div>		
 		</div>
