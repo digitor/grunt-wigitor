@@ -138,7 +138,6 @@ describe("test 1 - wigitor testable methods", function() {
 	describe("writeTemplate()", function() {
 		var pluginCnf = {
 			justContent: false
-			,multiProps: false
 			,omitScriptTags: true
 			,pluginDir: ""
 			,pathToRoot: ""
@@ -153,7 +152,6 @@ describe("test 1 - wigitor testable methods", function() {
 		it("shoud check that, when 'justContent' is true, an html file is created", function() {
 
 			basicPrep(function( thisPluginCnf ) {
-				thisPluginCnf.multiProps = false;
 				thisPluginCnf.justContent = true;
 			});
 
@@ -168,7 +166,6 @@ describe("test 1 - wigitor testable methods", function() {
 		it("shoud check that, when 'justContent' is false, an html file is created and contains template", function() {
 
 			basicPrep(function( thisPluginCnf ) {
-				thisPluginCnf.multiProps = false;
 				thisPluginCnf.justContent = false;
 			});
 
@@ -188,7 +185,6 @@ describe("test 1 - wigitor testable methods", function() {
 
 			basicPrep(function( thisPluginCnf ) {
 				thisPluginCnf.omitScriptTags = true;
-				thisPluginCnf.multiProps = false;
 				thisPluginCnf.justContent = true;
 			});
 
@@ -209,7 +205,6 @@ describe("test 1 - wigitor testable methods", function() {
 
 			basicPrep(function( thisPluginCnf ) {
 				thisPluginCnf.omitScriptTags = false;
-				thisPluginCnf.multiProps = false;
 				thisPluginCnf.justContent = true;
 			});
 
