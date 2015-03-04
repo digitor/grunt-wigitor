@@ -148,7 +148,7 @@ describe("test 1 - wigitor testable methods", function() {
 			var itErrored = false;
 
 			try {
-				testableMethods.widgetNameChecks( wgtName );
+				testableMethods.widgetNameChecks( wgtName, null, true );
 			} catch(e) {
 				itErrored = true;
 				// console.log( e );

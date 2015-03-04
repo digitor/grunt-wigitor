@@ -63,6 +63,7 @@ This should be the output folder.
 
 
 Releases
+- 0.1.3: Added 'strictName' option.
 - 0.1.2: Bug fixes around containerClasses after tested in the wild. Added options 'containerClasses' & 'pageTemplate'.
 - 0.1.1: Minor changes to README.md. Still unstable.
 - 0.1.0: Initial release. Not properly tested yet. Will probably break.

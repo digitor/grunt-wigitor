@@ -41,6 +41,7 @@ module.exports = function(grunt) {
 			,handlebarsPartials: null // this only affects handlebars widgets
 			,containerClasses: null
 			,pageTemplate: null
+			,strictName: true
 		});
 
 		// console.log( config.pathToWidgets )
@@ -77,7 +78,7 @@ module.exports = function(grunt) {
 			var wgtOpts = grunt.file.readJSON( src + "options.json" )
 				,wgtName = src.split("widgets/")[1].split("/")[0];
 
-			widgetNameChecks( wgtName );
+			widgetNameChecks( wgtName, null, config.strictName );
 
 			if( !wgtOpts["configName"] ) {
 				throw new Error( "Widgets must define their 'configName' inside their 'options.json' file. "+
@@ -322,14 +323,14 @@ module.exports = function(grunt) {
 	}
 
 
-	function widgetNameChecks( wgtName, parentMeth ) {
+	function widgetNameChecks( wgtName, parentMeth, strictName ) {
 
 		var thisMeth = parentMeth ? parentMeth +" -> widgetNameChecks() ->" : "widgetNameChecks() ->";
 
 		if( typeof wgtName !== "string" ) 
 			throw new Error(thisMeth+" 'wgtName' is not a string.");
 
-		if( wgtName.lastIndexOf("wgt") !== wgtName.length - 3 ) 
+		if( strictName && wgtName.lastIndexOf("wgt") !== wgtName.length - 3 ) 
 			throw new Error(thisMeth+" 'wgtName' does not end in 'wgt'.");
 
 		if( wgtName.indexOf(" ") !== -1 ) 
