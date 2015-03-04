@@ -1,9 +1,7 @@
 'use strict';
 
 var _ = require("lodash-node")
-	,fse = require("fs-extra")
-	,parserlib = require("parserlib") // for linting CSS
-	,TEST_DIR = "./dist/test1/";
+	,fse = require("fs-extra");
 
 describe("test 1 - wigitor testable methods", function() {
 
@@ -413,35 +411,5 @@ describe("test 1 - wigitor testable methods", function() {
 		expect( rtnCnf.handlebarswgt ).toBeDefined();
 
 		return rtnCnf;
-	}
-
-
-	function lintCSS( done, returnedStr ) {
-		// Now we lint the CSS
-		var parser = new parserlib.css.Parser();
-
-		// will get changed to true in error handler if errors detected
-		var errorsFound = false;
-
-		parser.addListener("error", function(event){
-		    console.log("Parse error: " + event.message + " (" + event.line + "," + event.col + ")", "error");
-		    errorsFound = true;
-		});
-
-		parser.addListener("endstylesheet", function(){
-		    console.log("Finished parsing style sheet");
-
-			expect( errorsFound ).toBe( false );
-
-			// finish the test
-		    done();
-		});
-		
-		parser.parse( returnedStr );
-	}
-
-
-	function trimAllWhite(str) {
-		return str.replace(/\s+/g, '');
 	}
 });

@@ -1,4 +1,4 @@
-
+'use strict';
 module.exports = function( grunt ) {
 
     grunt.initConfig({
@@ -39,28 +39,21 @@ module.exports = function( grunt ) {
                 ,modifyReadMes: true
                 ,justContent: true
                 ,omitScriptTags: true
-                ,pluginDir: "../custom_modules/widgetviewer/"
+                ,pluginDir: ""
             }
 
-            ,ejs: {
-                src: [ 'resources/widgets/ejswgt/' ]
-                ,dest: "dist/ejswgt/"
-                ,options: {
-                    "deps": ["handlebarswgt"]
-                    ,"multi-props": true
-                    ,"gitHubMsg": ('\n\n## ![Github](resources/img/octocat.png) Github\n'+
-                                    'You may need to switch branches to see the latest version.\n'+
-                                    '\n[master - widgets/ejswgt](https://github.com/digitor/wigitor/tree/master/resources/widgets/ejswgt)')
-                }
-            }
+            ,test2: require("./tests/grunt_configs/test2.js").test
+            ,test3: require("./tests/grunt_configs/test3.js").test
         }
     });
 
-    grunt.registerTask("test", ['jshint', 'jasmine_node:wigitor'] );
+    grunt.registerTask("test1", ['jasmine_node:wigitor'] );
+    grunt.registerTask("test2", ['wigitor:test2'] );
+    grunt.registerTask("test3", ['wigitor:test3'] );
 
-    grunt.registerTask('default', ['test', 'wigitor']
-                            .concat( grunt.option("dirty") ? [] : ["clean:tests"] )
-                        );
+    grunt.registerTask("test", ['test2', 'test3', 'test1'] ); // 'test1' must go last, as this actually runs the jasmine tests
+
+    grunt.registerTask('default', ['test'].concat(  grunt.option("dirty") ? [] : ["clean:tests"] )  );
 
     grunt.loadTasks('tasks');
 

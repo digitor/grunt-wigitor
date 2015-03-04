@@ -1,5 +1,5 @@
+"use strict";
 module.exports = function(grunt) {
-	"use strict";
 
 	var NS = "wigitor"
 		,ejs = require("ejs")
@@ -23,10 +23,10 @@ module.exports = function(grunt) {
 	grunt.registerMultiTask( NS, "Demo generator for CRP 'widgets'", function() {
 
 		var config = this.options({
-			pluginDir: "custom_modules/"+NS+"/"
+			pluginDir: "node_modules/"+NS+"/"
 			,host: ""
-			,pathToRoot: "../../"
-			,pathToWidgets: "widgets/"
+			,pathToRoot: ""
+			,pathToWidgets: "resources/widgets/" // immediate containing folder must be 'widgets'
 			,gitHubMsg: ('\n\n## ![Github](resources/img/octocat.png) Github\n'+
 						'You may need to switch branches to see the latest version.\n'+
 						'\n[master - widgets/xxxxwgt](https://github.com/digitor/wigitor/tree/master/resources/widgets/xxxxwgt)')
@@ -70,8 +70,9 @@ module.exports = function(grunt) {
 
 		_.forEach( fileObj.src, function(src) {
 
+			src = src + "/";
 
-			var wgtOpts = grunt.file.readJSON( src + "/options.json" );
+			var wgtOpts = grunt.file.readJSON( src + "options.json" );
 
 			var demoOpts = wgtOpts[ NS ];
 
@@ -96,10 +97,10 @@ module.exports = function(grunt) {
 			var ejsConfig = _.clone( standardPageCnf );
 
 			// Use properties ".json" files to generate demos
-			if( grunt.file.exists(src + "/properties") ) {
+			if( grunt.file.exists(src + "properties") ) {
 
 				var thisEjsConfig, multiPropsConfig;
-				grunt.file.recurse( src + "/properties", function(abspath, rootdir, subdir, filename) {
+				grunt.file.recurse( src + "properties", function(abspath, rootdir, subdir, filename) {
 
 					if( filename.lastIndexOf(".json") === filename.length - 5 ) {
 
@@ -138,7 +139,7 @@ module.exports = function(grunt) {
 
 	function writeReadMe( destWgtDir, readmeAdditions, readmeContent ) {
 
-		var readmeDest = destWgtDir + "/README.md"
+		var readmeDest = destWgtDir + "README.md"
 
 		// 'readmeContent' arg will only be defined in unit tests
 		if(!readmeContent) readmeContent = grunt.file.read( readmeDest );
@@ -192,7 +193,7 @@ module.exports = function(grunt) {
 
 	function writeDemo( pluginCnf, wgtName, wgtOpts, exampleName, customPageCnf, standardPageCnf, wgtDir, dest, propertiesJSONPath ) {
 
-		customPageCnf.filename = wgtDir + "/x"; // just needs to be 1 level deeper than the widget's directory, so using '/x'
+		customPageCnf.filename = wgtDir + "x"; // just needs to be 1 level deeper than the widget's directory, so using '/x'
 
 		// If no properties, skip this (probably means there is no config for this widget)
 		if( propertiesJSONPath ) {
@@ -247,7 +248,7 @@ module.exports = function(grunt) {
 			}
 		}
 
-		var wgtContent = ejs.render( grunt.file.read(wgtDir + "/markup.ejs"), customPageCnf );
+		var wgtContent = ejs.render( grunt.file.read(wgtDir + "markup.ejs"), customPageCnf );
 
 		if( pluginCnf.omitScriptTags === true ) wgtContent = removeScriptTags( wgtContent );
 
@@ -284,7 +285,7 @@ module.exports = function(grunt) {
 	function renderPartialHelper(pathToRoot, wgtDir, path, item) {
 		// This is for 'ejs-render' helper includes, so needs standardPageCnf variables
 		var thisPageConfig = _.clone( standardPageCnf );
-		thisPageConfig.filename = wgtDir + "/x";
+		thisPageConfig.filename = wgtDir + "x";
 		item = _.extend( {}, item, thisPageConfig );
 		
 		return ejs.render( grunt.file.read( pathToRoot + path ), item );
