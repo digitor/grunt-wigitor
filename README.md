@@ -17,6 +17,9 @@ The folder structure of a Wigitor 'widget' should be:
 - `scss` folder should contain a `_module.scss` and follow SMACSS guidelines for `_state.scss` and `_layout.scss`. `_vars.scss` can also be used.
 - `options.json` (see explanation below)
 - `README.md` (see explanation below)
+- `markup.hbs` or `markup.ejs`, depending on which template you're using. This is the default template for the widget.
+- `another-template.hbs`. You may add more partials/includes as well, but they will be secondary to `markup.hbs`. (`.ejs` can also be used)
+- `properties/example1.json`, which should contain a config object for your widget. Multiple json files allowed and doesn't have to be `example1.json`.
 
 ### options.json
 There's also an `options.json` file in each widget, which contains options for the widget:
@@ -53,4 +56,5 @@ This only applies if `options.json -> modifyReadMes` is set to `true`
 
 
 Releases
+- 0.1.1: Minor changes to README.md. Still unstable.
 - 0.1.0: Initial release. Not properly tested yet. Will probably break.
