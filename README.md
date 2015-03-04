@@ -14,12 +14,12 @@ The folder structure of a Wigitor 'widget' should be:
   - must end in `wgt`
   - eg - `samplewgt`
 - `js` folder should contain a 'main.js'
-- `scss` folder should contain a '_module.scss' and follow SMACSS guidelines for '_state.scss' and '_layout.scss'. '_vars.scss' can also be used.
-- 'options.json' (see explanation below)
-- README.md (see explanation below)
+- `scss` folder should contain a `_module.scss` and follow SMACSS guidelines for `_state.scss` and `_layout.scss`. `_vars.scss` can also be used.
+- `options.json` (see explanation below)
+- `README.md` (see explanation below)
 
 ### options.json
-There's also a "options.json" file in each widget, which contains options for the widget:
+There's also an `options.json` file in each widget, which contains options for the widget:
 
 1. `configName` {string}: This is the name of the config object used when populating the template. It must be unique and should roughly folow the name of the widget with the suffix "Cnf". You can abbreviate if your have a long widget name.
 
@@ -50,3 +50,7 @@ This only applies if `options.json -> modifyReadMes` is set to `true`
 - deps {array or strings}: a list of widgets that this widget depends on. Their configs will be added to the global scope when rendering.
 - multiProps {boolean}: If `true` will search through the widget's `properties` folder and make available all json files as configs.
 - handlebarsPartials {array of objects}: Objects with details of additional handlebars partials needed for this widget. Partials in the widget's root folder will automatically be added, using the naming convention `samplewgt_my-other-file`. Objects must have 2 properties `name` {string} and `path` {string}.
+
+
+Releases
+- 0.1.0: Initial release. Not properly tested yet. Will probably break.
