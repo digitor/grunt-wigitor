@@ -87,8 +87,7 @@ module.exports = function(grunt) {
 					"Stopping demo generaton for " + wgtName + "." );
 			}
 
-			var readmeSrc = src + "/README.md"
-				,readmeContent = grunt.file.read( readmeSrc );
+			
 
 			if( grunt.option("clear") ) clearReadMeAdditions( src );
 
@@ -129,29 +128,39 @@ module.exports = function(grunt) {
 				writeDemo( config, wgtName, wgtOpts, exampleName, ejsConfig, standardPageCnf, src, fileObj.dest );
 			}
 			
-			if( config.modifyReadMes === true && readmeAdditions ) {
-				readmeAdditions = START_ADD + "\n\n" + readmeAdditions + "\n\n" + END_ADD;
-
-				if( readmeContent.indexOf(START_ADD) === -1 ) {
-
-					var h2Index = readmeContent.indexOf("##");
-					if( h2Index === -1 ) {
-						// if no custom tags, or h2, put it at the end
-						grunt.file.write( readmeSrc, readmeContent + "\n\n" + readmeAdditions );
-					} else {
-						// else look for h2 and place before it
-						grunt.file.write( readmeSrc, readmeContent.slice(0, h2Index) + readmeAdditions + "\n\n" + readmeContent.slice(h2Index) );
-					}
-				} else {
-					// if custom tags found, place between them
-					var arr = readmeContent.split(START_ADD);
-					grunt.file.write( readmeSrc, arr[0] + readmeAdditions + arr[1].split(END_ADD)[1] );
-				}
-			}
+			if( config.modifyReadMes === true && readmeAdditions )
+				writeReadMe( src, readmeAdditions, null );
 		});
 		
 		done();
 	});
+
+
+	function writeReadMe( destWgtDir, readmeAdditions, readmeContent ) {
+
+		var readmeDest = destWgtDir + "/README.md"
+
+		// 'readmeContent' arg will only be defined in unit tests
+		if(!readmeContent) readmeContent = grunt.file.read( readmeDest );
+
+		readmeAdditions = START_ADD + "\n\n" + readmeAdditions + "\n\n" + END_ADD;
+
+		if( readmeContent.indexOf(START_ADD) === -1 ) {
+
+			var h2Index = readmeContent.indexOf("##");
+			if( h2Index === -1 ) {
+				// if no custom tags, or h2, put it at the end
+				grunt.file.write( readmeDest, readmeContent + "\n\n" + readmeAdditions );
+			} else {
+				// else look for h2 and place before it
+				grunt.file.write( readmeDest, readmeContent.slice(0, h2Index) + readmeAdditions + "\n\n" + readmeContent.slice(h2Index) );
+			}
+		} else {
+			// if custom tags found, place between them
+			var arr = readmeContent.split(START_ADD);
+			grunt.file.write( readmeDest, arr[0] + readmeAdditions + arr[1].split(END_ADD)[1] );
+		}
+	}
 
 
 	function getDemoLink( wgtName, exampleName, readmeAdditions, configPath, dest ) {
@@ -340,6 +349,7 @@ module.exports = function(grunt) {
 	return {
 		tests: {
 			clearReadMeAdditions: clearReadMeAdditions
+			,writeReadMe: writeReadMe
 			,removeScriptTags: removeScriptTags
 			,widgetNameChecks: widgetNameChecks
 			,writeTemplate: writeTemplate

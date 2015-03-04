@@ -17,11 +17,57 @@ describe("test 1 - wigitor testable methods", function() {
 				,cons = testableMethods.constants
 				,CONTENT = "\nxxxxx\n";
 
-			fse.outputFileSync(path+"README.md", "# TEST\n"+cons.START_ADD + CONTENT + cons.END_ADD );
+			fse.outputFileSync(path+"README.md", "# Heading 1\n"+cons.START_ADD + CONTENT + cons.END_ADD );
 
 			testableMethods.clearReadMeAdditions(path);
 
 			expect( fse.readFileSync(path+"README.md").toString().indexOf(CONTENT) ).toEqual(-1);
+		});
+	});
+
+	describe("writeReadMe()", function() {
+
+		var dest = "dist/test1/writeReadMe/"
+			,cons = testableMethods.constants
+			,pre = "# Heading 1\n"
+			,post = "\n## Heading 2"
+			,dblBreak = "\n\n"
+			,readmeAdditions = "Github stuff here";
+
+		it("should place readme content between the custom tags", function() {
+
+			testableMethods.writeReadMe( dest, readmeAdditions, pre + cons.START_ADD + cons.END_ADD + post );
+
+			var content = fse.readFileSync(dest+"README.md").toString();
+
+			expect( content ).toBe( pre + cons.START_ADD + dblBreak + readmeAdditions + dblBreak + cons.END_ADD + post );
+
+			// clean up
+			fse.removeSync( dest+"README.md" );
+		});
+
+		it("should place readme content before the h2/##", function() {
+
+			testableMethods.writeReadMe( dest, readmeAdditions, pre + post );
+
+			var content = fse.readFileSync(dest+"README.md").toString();
+
+			expect( content ).toBe( pre + "\n" + cons.START_ADD + dblBreak + readmeAdditions + dblBreak + cons.END_ADD + "\n" + post );
+
+			// clean up
+			fse.removeSync( dest+"README.md" );
+		});
+
+		it("should place readme content at the end of the doc", function() {
+
+			testableMethods.writeReadMe( dest, readmeAdditions, pre ); // note: no 'post'
+
+			var content = fse.readFileSync(dest+"README.md").toString();
+
+			expect( content ).toBe( pre + dblBreak + cons.START_ADD + dblBreak + readmeAdditions + dblBreak + cons.END_ADD );
+
+			// clean up
+			fse.removeSync( dest+"README.md" );
 		});
 	});
 

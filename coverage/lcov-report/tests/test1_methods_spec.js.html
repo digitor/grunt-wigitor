@@ -18,16 +18,16 @@
     <h1>Code coverage report for <span class="entity">tests\test1_methods_spec.js</span></h1>
     <h2>
         
-        Statements: <span class="metric">93.71% <small>(164 / 175)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Statements: <span class="metric">94.24% <small>(180 / 191)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
         
         
         Branches: <span class="metric">87.5% <small>(7 / 8)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
         
         
-        Functions: <span class="metric">91.3% <small>(42 / 46)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Functions: <span class="metric">92% <small>(46 / 50)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
         
         
-        Lines: <span class="metric">93.71% <small>(164 / 175)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
+        Lines: <span class="metric">94.24% <small>(180 / 191)</small></span> &nbsp;&nbsp;&nbsp;&nbsp;
         
         Ignored: <span class="metric"><span class="ignore-none">none</span></span> &nbsp;&nbsp;&nbsp;&nbsp;
     </h2>
@@ -436,7 +436,53 @@
 399
 400
 401
-402</td><td class="line-coverage"><span class="cline-any cline-neutral">&nbsp;</span>
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448</td><td class="line-coverage"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -460,6 +506,52 @@
 <span class="cline-any cline-yes">1</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -856,11 +948,57 @@ describe("test 1 - wigitor testable methods", function() {
 				,cons = testableMethods.constants
 				,CONTENT = "\nxxxxx\n";
 &nbsp;
-			fse.outputFileSync(path+"README.md", "# TEST\n"+cons.START_ADD + CONTENT + cons.END_ADD );
+			fse.outputFileSync(path+"README.md", "# Heading 1\n"+cons.START_ADD + CONTENT + cons.END_ADD );
 &nbsp;
 			testableMethods.clearReadMeAdditions(path);
 &nbsp;
 			expect( fse.readFileSync(path+"README.md").toString().indexOf(CONTENT) ).toEqual(-1);
+		});
+	});
+&nbsp;
+	describe("writeReadMe()", function() {
+&nbsp;
+		var dest = "dist/test1/writeReadMe/"
+			,cons = testableMethods.constants
+			,pre = "# Heading 1\n"
+			,post = "\n## Heading 2"
+			,dblBreak = "\n\n"
+			,readmeAdditions = "Github stuff here";
+&nbsp;
+		it("should place readme content between the custom tags", function() {
+&nbsp;
+			testableMethods.writeReadMe( dest, readmeAdditions, pre + cons.START_ADD + cons.END_ADD + post );
+&nbsp;
+			var content = fse.readFileSync(dest+"README.md").toString();
+&nbsp;
+			expect( content ).toBe( pre + cons.START_ADD + dblBreak + readmeAdditions + dblBreak + cons.END_ADD + post );
+&nbsp;
+			// clean up
+			fse.removeSync( dest+"README.md" );
+		});
+&nbsp;
+		it("should place readme content before the h2/##", function() {
+&nbsp;
+			testableMethods.writeReadMe( dest, readmeAdditions, pre + post );
+&nbsp;
+			var content = fse.readFileSync(dest+"README.md").toString();
+&nbsp;
+			expect( content ).toBe( pre + "\n" + cons.START_ADD + dblBreak + readmeAdditions + dblBreak + cons.END_ADD + "\n" + post );
+&nbsp;
+			// clean up
+			fse.removeSync( dest+"README.md" );
+		});
+&nbsp;
+		it("should place readme content at the end of the doc", function() {
+&nbsp;
+			testableMethods.writeReadMe( dest, readmeAdditions, pre ); // note: no 'post'
+&nbsp;
+			var content = fse.readFileSync(dest+"README.md").toString();
+&nbsp;
+			expect( content ).toBe( pre + dblBreak + cons.START_ADD + dblBreak + readmeAdditions + dblBreak + cons.END_ADD );
+&nbsp;
+			// clean up
+			// fse.removeSync( dest+"README.md" );
 		});
 	});
 &nbsp;
@@ -1243,7 +1381,7 @@ describe("test 1 - wigitor testable methods", function() {
 
 </div>
 <div class="footer">
-    <div class="meta">Generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Wed Mar 04 2015 12:35:23 GMT+1100 (AUS Eastern Daylight Time)</div>
+    <div class="meta">Generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Wed Mar 04 2015 13:05:04 GMT+1100 (AUS Eastern Daylight Time)</div>
 </div>
 
 <script src="../prettify.js"></script>
