@@ -4,7 +4,7 @@ var _ = require("lodash-node")
 	,fse = require("fs-extra")
 
 
-describe("test 3- check generated files and folders", function() {
+describe("test 3 - check generated files and folders", function() {
 
 	it("should generate html and image files", function() {
 		expect( fse.existsSync( "dist/test3/ejs2wgt-myprops.html" ) ).toBe( true );

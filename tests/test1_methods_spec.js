@@ -170,7 +170,7 @@ describe("test 1 - wigitor testable methods", function() {
 	describe("renderPartialHelper", function() {
 		it("should check that the function returns rendered markup", function() {
 
-			var wgtCnf = getWidgetConfig( "resources/widgets/ejswgt/", "example1", false )
+			var wgtCnf = getWidgetConfig( "resources/widgets/ejswgt/", "example1", false, true )
 				,rendered = testableMethods.renderPartialHelper( process.cwd()+"/", "resources/widgets/", "resources/widgets/ejswgt/markup.ejs", wgtCnf );
 
 			expect( rendered.indexOf("<div") === 0 ).toBe( true );
@@ -279,7 +279,7 @@ describe("test 1 - wigitor testable methods", function() {
 
 			cb( thisPluginCnf, wgtOpts );
 
-			var customPageCnf = getWidgetConfig( wgtDir, exampleName, true );
+			var customPageCnf = getWidgetConfig( wgtDir, exampleName, true, true );
 
 			var propertiesJSONPath = propName ? wgtDir+"properties/"+propName+".json" : null;
 
@@ -298,13 +298,13 @@ describe("test 1 - wigitor testable methods", function() {
 		wigitor = {
 			"container-classes": null
 		}
-		,wgtName = "ejswgt"
-		,wgtDir = "resources/widgets/"+wgtName+"/"
 		,dest = "dist/test1/writeTemplate/";
 
-		it("shoud check that, when 'justContent' is true, an html file is created", function() {
+		it("should check that, when 'justContent' is true, an html file is created - ejswgt", function() {
 
-			basicPrep(function( thisPluginCnf ) {
+			var wgtName = "ejswgt";
+
+			basicPrep( wgtName, true, function( thisPluginCnf ) {
 				thisPluginCnf.justContent = true;
 			});
 
@@ -316,9 +316,27 @@ describe("test 1 - wigitor testable methods", function() {
 			fse.removeSync( genFile );
 		});
 
-		it("shoud check that, when 'justContent' is false, an html file is created and contains template", function() {
+		it("should check that, when 'justContent' is true, an html file is created - handlebarswgt", function() {
 
-			basicPrep(function( thisPluginCnf ) {
+			var wgtName = "handlebarswgt";
+
+			basicPrep( wgtName, false, function( thisPluginCnf ) {
+				thisPluginCnf.justContent = true;
+			});
+
+			// check file created
+			var genFile = dest + wgtName+"-example1.html";
+			expect( fse.existsSync( genFile ) ).toBe( true );
+
+			// clean up
+			fse.removeSync( genFile );
+		});
+
+		it("should check that, when 'justContent' is false, an html file is created and contains template", function() {
+
+			var wgtName = "ejswgt";
+
+			basicPrep( wgtName, true, function( thisPluginCnf ) {
 				thisPluginCnf.justContent = false;
 			});
 
@@ -334,9 +352,11 @@ describe("test 1 - wigitor testable methods", function() {
 			fse.removeSync( genFile );
 		});
 
-		it("shoud check that, when 'omitScriptTags' is true, script tags get removed", function() {
+		it("should check that, when 'omitScriptTags' is true, script tags get removed", function() {
 
-			basicPrep(function( thisPluginCnf ) {
+			var wgtName = "ejswgt";
+
+			basicPrep( wgtName, true, function( thisPluginCnf ) {
 				thisPluginCnf.omitScriptTags = true;
 				thisPluginCnf.justContent = true;
 			});
@@ -354,9 +374,11 @@ describe("test 1 - wigitor testable methods", function() {
 			fse.removeSync( genFile );
 		});
 
-		it("shoud check that, when 'omitScriptTags' is false, script tags DO NOT get removed", function() {
+		it("should check that, when 'omitScriptTags' is false, script tags DO NOT get removed", function() {
 
-			basicPrep(function( thisPluginCnf ) {
+			var wgtName = "ejswgt";
+
+			basicPrep( wgtName, true, function( thisPluginCnf ) {
 				thisPluginCnf.omitScriptTags = false;
 				thisPluginCnf.justContent = true;
 			});
@@ -374,26 +396,27 @@ describe("test 1 - wigitor testable methods", function() {
 			fse.removeSync( genFile );
 		});
 
-		function basicPrep(cb) {
+
+		function basicPrep(wgtName, isEJS, cb) {
 			
 			var thisPluginCnf = _.clone( pluginCnf )
-				,wgtOpts = _.clone( { "wigitor": wigitor } )
-				,exampleName = "example1";
+				,wgtOpts = { "wigitor": wigitor, templateType: (isEJS ? "ejs" : "hbs") }
+				,exampleName = "example1"
+				,wgtDir = "resources/widgets/"+wgtName+"/";
 
 			cb( thisPluginCnf );
 
-			var customPageCnf = getWidgetConfig( wgtDir, exampleName, true );
+			var customPageCnf = getWidgetConfig( wgtDir, exampleName, true, isEJS );
 
-			// console.log( customPageCnf )
 			testableMethods.writeTemplate( thisPluginCnf, wgtName, wgtOpts, exampleName, testableMethods.configs.standardPageCnf, wgtDir, dest, customPageCnf );
 
-			// just making sure ejs-render polyfill exists
-			expect( customPageCnf.helpers.renderPartial ).toBeDefined();
+			// just making sure ejs-render polyfill exists - not needed for handlebarswgt
+			if( isEJS ) expect( customPageCnf.helpers.renderPartial ).toBeDefined();
 		}
 	});
 
 
-	function getWidgetConfig( wgtDir, exampleName, includePageConfig ) {
+	function getWidgetConfig( wgtDir, exampleName, includePageConfig, isEJS ) {
 		// merge standard page config with widget properties
 		var wgtCnf = {}
 			,wgtOpts = fse.readJsonSync( wgtDir + "options.json" )
@@ -406,9 +429,11 @@ describe("test 1 - wigitor testable methods", function() {
 		else
 			rtnCnf = wgtCnf;
 
-		// add config from handlebarswgt
-		rtnCnf = testableMethods.addDepsConfigs( rtnCnf, "resources/widgets/",  ["handlebarswgt"] );
-		expect( rtnCnf.handlebarswgt ).toBeDefined();
+		if( isEJS ) {
+			// add config from handlebarswgt
+			rtnCnf = testableMethods.addDepsConfigs( rtnCnf, "resources/widgets/",  ["handlebarswgt"] );
+			expect( rtnCnf.handlebarswgt ).toBeDefined();
+		}
 
 		return rtnCnf;
 	}

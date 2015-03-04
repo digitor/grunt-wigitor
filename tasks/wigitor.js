@@ -3,6 +3,8 @@ module.exports = function(grunt) {
 
 	var NS = "wigitor"
 		,ejs = require("ejs")
+		,fse = require("fs-extra")
+		,Handlebars = require("handlebars")
 		,_ = require( 'lodash-node' );
 
 	var START_ADD = "<!--START_WIGITOR_ADDITIONS-->"
@@ -37,6 +39,7 @@ module.exports = function(grunt) {
 			,omitScriptTags: false
 			,deps: null
 			,multiProps: false
+			,handlebarsPartials: null // this only affects handlebars widgets
 		});
 
 		// add slash is one doesn't exist
@@ -74,10 +77,10 @@ module.exports = function(grunt) {
 
 			var wgtOpts = grunt.file.readJSON( src + "options.json" );
 
-			var demoOpts = wgtOpts[ NS ];
+			var wigitor = wgtOpts[ NS ];
 
 			// only generate demos if widget options specify it
-			if( !demoOpts ) return;
+			if( !wigitor ) return;
 
 			var wgtName = src.split("widgets/")[1].split("/")[0];
 
@@ -94,12 +97,12 @@ module.exports = function(grunt) {
 
 			var readmeAdditions = config.gitHubMsg;
 
-			var ejsConfig = _.clone( standardPageCnf );
+			var pageConfig = _.clone( standardPageCnf );
 
 			// Use properties ".json" files to generate demos
 			if( grunt.file.exists(src + "properties") ) {
 
-				var thisEjsConfig, multiPropsConfig;
+				var thisPageConfig, multiPropsConfig;
 				grunt.file.recurse( src + "properties", function(abspath, rootdir, subdir, filename) {
 
 					if( filename.lastIndexOf(".json") === filename.length - 5 ) {
@@ -110,10 +113,10 @@ module.exports = function(grunt) {
 							readmeAdditions = getDemoLink( wgtName, exampleName, readmeAdditions, abspath, fileObj.dest );
 
 						// Allows properties to accululate over each json file
-						if( config.multiProps === true && multiPropsConfig )	thisEjsConfig = multiPropsConfig;
-						else													thisEjsConfig = ejsConfig;
+						if( config.multiProps === true && multiPropsConfig )	thisPageConfig = multiPropsConfig;
+						else													thisPageConfig = pageConfig;
 
-						multiPropsConfig = writeDemo( config, wgtName, wgtOpts, exampleName, thisEjsConfig, standardPageCnf, src, fileObj.dest, abspath );
+						multiPropsConfig = writeDemo( config, wgtName, wgtOpts, exampleName, thisPageConfig, standardPageCnf, src, fileObj.dest, abspath );
 					}
 				}); // end grunt.file.recurse
 
@@ -126,7 +129,7 @@ module.exports = function(grunt) {
 				if( config.modifyReadMes === true )
 					readmeAdditions = getDemoLink( wgtName, exampleName, readmeAdditions, fileObj.dest );
 				
-				writeDemo( config, wgtName, wgtOpts, exampleName, ejsConfig, standardPageCnf, src, fileObj.dest );
+				writeDemo( config, wgtName, wgtOpts, exampleName, pageConfig, standardPageCnf, src, fileObj.dest );
 			}
 			
 			if( config.modifyReadMes === true && readmeAdditions )
@@ -239,16 +242,51 @@ module.exports = function(grunt) {
 
 	function writeTemplate( pluginCnf, wgtName, wgtOpts, exampleName, standardPageCnf, wgtDir, dest, customPageCnf ) {
 
-		var demoOpts = wgtOpts[ NS ];
+		var wigitor = wgtOpts[ NS ];
 
-		// This is a polyfill for "grunt-ejs-render" method
-		customPageCnf.helpers = {
-			renderPartial: function( path, item ) {
-				renderPartialHelper( pluginCnf.pathToRoot, wgtDir, path, item );
+		var wgtContent;
+
+		// defaults to "ejs"
+		if( !wgtOpts.templateType || wgtOpts.templateType === "ejs" ) {
+
+			// This is a polyfill for "grunt-ejs-render" method
+			customPageCnf.helpers = {
+				renderPartial: function( path, item ) {
+					renderPartialHelper( pluginCnf.pathToRoot, wgtDir, path, item );
+				}
 			}
+
+			wgtContent = ejs.render( grunt.file.read(wgtDir + "markup.ejs"), customPageCnf );
+		} else if( wgtOpts.templateType === "hbs" ) {
+
+			var partials = pluginCnf.handlebarsPartials || [];
+
+			partials.forEach(function( obj ) {
+				Handlebars.registerPartial( obj.name, grunt.file.read( obj.path ) );
+			});
+
+			// automatically registers partials in the widget's root directory
+			fse.readdirSync( wgtDir ).forEach(function( filename ) {
+				if( filename !== "markup.hbs" && filename.lastIndexOf(".hbs") === filename.length - 4 ) {
+
+					var partialName = wgtName + "_" + filename.replace(".hbs","");
+
+					var duplicates = _.where( partials, function(obj) {
+						return obj.name === partialName || obj.path === wgtDir + filename;
+					});
+
+					// will only auto-add partials if thier name and path does not already exist
+					if( duplicates.length === 0 )
+						Handlebars.registerPartial( partialName, grunt.file.read(wgtDir + filename) );
+				}
+			});
+
+			var markup = grunt.file.read(wgtDir + "markup.hbs")
+				,hbs = Handlebars.compile( markup );
+
+			wgtContent = hbs(customPageCnf);
 		}
 
-		var wgtContent = ejs.render( grunt.file.read(wgtDir + "markup.ejs"), customPageCnf );
 
 		if( pluginCnf.omitScriptTags === true ) wgtContent = removeScriptTags( wgtContent );
 
@@ -264,17 +302,17 @@ module.exports = function(grunt) {
 		// console.log( grunt.file.exists( templatePath ), templatePath );
 		if( grunt.file.exists( templatePath ) ) {
 
-			var thisEjsConfig = _.clone( standardPageCnf );
+			var pageConfig = _.clone( standardPageCnf );
 
-			thisEjsConfig.containerClasses = demoOpts["container-classes"]; // allowed to be falsey
-			thisEjsConfig.filename = pluginCnf.pathToRoot + wgtDir;
-			thisEjsConfig.pagetitle = "Widget '"+wgtName+"' Demo";
-			thisEjsConfig.pagedescription = "Widget '"+wgtName+"' Demo";
-			thisEjsConfig.name = "styleguide";
-			thisEjsConfig.wgtName = wgtName;
-			thisEjsConfig.wgtContent = wgtContent;
+			pageConfig.containerClasses = wigitor["container-classes"]; // allowed to be falsey
+			pageConfig.filename = pluginCnf.pathToRoot + wgtDir;
+			pageConfig.pagetitle = "Widget '"+wgtName+"' Demo";
+			pageConfig.pagedescription = "Widget '"+wgtName+"' Demo";
+			pageConfig.name = "styleguide";
+			pageConfig.wgtName = wgtName;
+			pageConfig.wgtContent = wgtContent;
 
-			var rendered = ejs.render( grunt.file.read(templatePath), thisEjsConfig);
+			var rendered = ejs.render( grunt.file.read(templatePath), pageConfig);
 
 			// console.log( dest + "/"+ wgtName + "-" + exampleName+".html" );
 			grunt.file.write( dest + "/"+ wgtName + "-" + exampleName+".html", rendered );

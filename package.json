@@ -17,6 +17,7 @@
     "fs-extra": "0.15.0"
     ,"lodash-node": "2.4.1"
     ,"ejs": "1.0.0"
+    ,"handlebars" : "3.0.0"
   },
   "devDependencies": {
     "grunt": "0.4.5"
