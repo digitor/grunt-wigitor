@@ -181,9 +181,9 @@ module.exports = function(grunt) {
 	}
 
 
-	function writeDemo( config, wgtName, wgtOpts, exampleName, customPageCnf, standardPageCnf, src, dest, propertiesJSONPath ) {
+	function writeDemo( pluginCnf, wgtName, wgtOpts, exampleName, customPageCnf, standardPageCnf, wgtDir, dest, propertiesJSONPath ) {
 
-		customPageCnf.filename = src + "/x"; // just needs to be 1 level deeper than the widget's directory, so using '/x'
+		customPageCnf.filename = wgtDir + "/x"; // just needs to be 1 level deeper than the widget's directory, so using '/x'
 
 		// If no properties, skip this (probably means there is no config for this widget)
 		if( propertiesJSONPath ) {
@@ -192,24 +192,22 @@ module.exports = function(grunt) {
 			var propsConfig = grunt.file.readJSON( propertiesJSONPath );
 			customPageCnf[ wgtOpts.configName ] = propsConfig;
 
-			if( config.multiProps === true ) {
+			if( pluginCnf.multiProps === true ) {
 				customPageCnf[ wgtName ] = customPageCnf[ wgtName ] || {};
 				customPageCnf[ wgtName ][ exampleName ] = propsConfig;
-
-				// console.log( customPageCnf[ wgtName ] );
 			}
 		}
 
-		// add configs of other widgets that are specified in config.deps
-		if( config.deps ) customPageCnf = addDepsConfigs( customPageCnf, config.pathToWidgets, config.deps );
+		// add configs of other widgets that are specified in pluginCnf.deps
+		if( pluginCnf.deps ) customPageCnf = addDepsConfigs( customPageCnf, pluginCnf.pathToWidgets, pluginCnf.deps );
 
 
 		// console.log( customPageCnf[ wgtName ] );
 		// If multiProps is set to true, then don't render anything, just return the customPageCnf so it can be added to
-		if( config.multiProps === true ) return customPageCnf;
+		if( pluginCnf.multiProps === true ) return customPageCnf;
 
 		// console.log( "writeTemplate" )
-		writeTemplate( config, wgtName, wgtOpts, exampleName, standardPageCnf, src, dest, customPageCnf );
+		writeTemplate( pluginCnf, wgtName, wgtOpts, exampleName, standardPageCnf, wgtDir, dest, customPageCnf );
 	}
 
 
@@ -345,7 +343,8 @@ module.exports = function(grunt) {
 			,removeScriptTags: removeScriptTags
 			,widgetNameChecks: widgetNameChecks
 			,writeTemplate: writeTemplate
-			,renderPartialHelper: renderPartialHelper // todo
+			,writeDemo: writeDemo
+			,renderPartialHelper: renderPartialHelper
 			,addDepsConfigs: addDepsConfigs
 			,constants: {
 				START_ADD: START_ADD

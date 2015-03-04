@@ -135,6 +135,115 @@ describe("test 1 - wigitor testable methods", function() {
 	});
 
 
+	describe("writeDemo()", function() {
+		var pluginCnf = {
+			justContent: false
+			,multiProps: false
+			,omitScriptTags: true
+			,pluginDir: ""
+			,pathToRoot: ""
+			,pathToWidgets: "resources/widgets/"
+		}
+		,wgtName = "ejswgt"
+		,wgtDir = "resources/widgets/"+wgtName+"/"
+		,dest = "dist/test1/writeDemo/";
+
+
+		it("should write to file when 'multiProps' is false", function() {
+
+			var multiPropsConfig = basicPrep(function(thisPluginCnf) {
+				thisPluginCnf.multiProps = false;
+			});
+
+			// check file created
+			var genFile = dest + wgtName+"-example1.html";
+			expect( fse.existsSync( genFile ) ).toBe( true );
+
+			// clean up
+			fse.removeSync( genFile );
+		});
+
+
+		it("should NOT write to file when 'multiProps' is true", function() {
+
+			var multiPropsConfig = basicPrep(function(thisPluginCnf) {
+				thisPluginCnf.multiProps = true;
+			});
+
+			// check file created
+			var genFile = dest + wgtName+"-example1.html";
+			expect( fse.existsSync( genFile ) ).toBe( false );
+		});
+
+
+		it("should return a config when 'multiProps' is true", function() {
+
+			var thisPluginCnf, wgtOpts;
+
+			var multiPropsConfig = basicPrep(function(_pluginCnf, _wgtOpts) {
+				_pluginCnf.multiProps = true;
+				thisPluginCnf = _pluginCnf;
+				wgtOpts = _wgtOpts;
+			}, "example1");
+
+			expect( multiPropsConfig ).toBeDefined();
+
+			var propertiesJSONPath = wgtDir+"properties/example2.json";
+			multiPropsConfig = testableMethods.writeDemo( thisPluginCnf, wgtName, wgtOpts, "example2", multiPropsConfig, testableMethods.configs.standardPageCnf, wgtDir, dest, propertiesJSONPath );
+
+			// this is the normal config, based on example1 - maybe this should be removed?
+			expect( multiPropsConfig[ wgtOpts.configName ] ).toBeDefined();
+
+			// these are the multi properties, based on widget's 'properties' folder contents
+			expect( multiPropsConfig[ wgtName ].example1 ).toBeDefined();
+			expect( multiPropsConfig[ wgtName ].example2 ).toBeDefined();
+		});
+
+
+		it("should return 'undefined' when 'multiProps' is false", function() {
+
+			var multiPropsConfig = basicPrep(function(thisPluginCnf) {
+				thisPluginCnf.multiProps = false;
+			});
+
+			expect( multiPropsConfig ).not.toBeDefined();
+
+			// check file created
+			var genFile = dest + wgtName+"-example1.html";
+			expect( fse.existsSync( genFile ) ).toBe( true );
+
+			// clean up
+			fse.removeSync( genFile );
+		});
+
+
+		it("should contain 'handlebarswgt' config data", function() {
+
+			var multiPropsConfig = basicPrep(function(thisPluginCnf) {
+				thisPluginCnf.multiProps = true;
+				thisPluginCnf.deps = ["handlebarswgt"];
+			});
+
+			expect( multiPropsConfig ).toBeDefined();
+			expect( multiPropsConfig.handlebarswgt.example1 ).toBeDefined();
+		});
+
+		function basicPrep( cb, propName ) {
+			var thisPluginCnf = _.clone( pluginCnf )
+				,wgtOpts = fse.readJsonSync( wgtDir + "options.json" )
+				,exampleName = propName || "example1";
+
+			cb( thisPluginCnf, wgtOpts );
+
+			var customPageCnf = getWidgetConfig( wgtDir, exampleName, true );
+
+			var propertiesJSONPath = propName ? wgtDir+"properties/"+propName+".json" : null;
+
+			return testableMethods.writeDemo( thisPluginCnf, wgtName, wgtOpts, exampleName, customPageCnf, testableMethods.configs.standardPageCnf, wgtDir, dest, propertiesJSONPath );
+		}
+	});
+
+
 	describe("writeTemplate()", function() {
 		var pluginCnf = {
 			justContent: false
@@ -224,7 +333,7 @@ describe("test 1 - wigitor testable methods", function() {
 		function basicPrep(cb) {
 			
 			var thisPluginCnf = _.clone( pluginCnf )
-				,thisWigitor = _.clone( { "wigitor": wigitor } )
+				,wgtOpts = _.clone( { "wigitor": wigitor } )
 				,exampleName = "example1";
 
 			cb( thisPluginCnf );
@@ -232,7 +341,7 @@ describe("test 1 - wigitor testable methods", function() {
 			var customPageCnf = getWidgetConfig( wgtDir, exampleName, true );
 
 			// console.log( customPageCnf )
-			testableMethods.writeTemplate( thisPluginCnf, wgtName, thisWigitor, exampleName, testableMethods.configs.standardPageCnf, wgtDir, dest, customPageCnf );
+			testableMethods.writeTemplate( thisPluginCnf, wgtName, wgtOpts, exampleName, testableMethods.configs.standardPageCnf, wgtDir, dest, customPageCnf );
 
 			// just making sure ejs-render polyfill exists
 			expect( customPageCnf.helpers.renderPartial ).toBeDefined();
