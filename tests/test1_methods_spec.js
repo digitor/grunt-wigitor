@@ -125,8 +125,12 @@ describe("test 1 - wigitor testable methods", function() {
 
 	describe("renderPartialHelper", function() {
 		it("should check that the function returns rendered markup", function() {
-			// var rendered = testableMethods.renderPartialHelper(  );
-			console.log( process.cwd() );
+
+			var wgtCnf = getWidgetConfig( "resources/widgets/ejswgt/", "example1", false )
+				,rendered = testableMethods.renderPartialHelper( process.cwd()+"/", "resources/widgets/", "resources/widgets/ejswgt/markup.ejs", wgtCnf );
+
+			expect( rendered.indexOf("<div") === 0 ).toBe( true );
+			expect( rendered.indexOf("<%") === -1 ).toBe( true );
 		});
 	});
 
@@ -230,16 +234,7 @@ describe("test 1 - wigitor testable methods", function() {
 
 			cb( thisPluginCnf );
 
-			// merge standard page config with widget properties
-			var wgtCnf = {}
-				,wgtOpts = fse.readJsonSync( wgtDir + "options.json" )
-			wgtCnf[ wgtOpts.configName ] = fse.readJsonSync( wgtDir + "properties/" + exampleName + ".json" );
-			
-			var customPageCnf = _.extend( {}, testableMethods.configs.standardPageCnf, wgtCnf );
-
-			// add config from handlebarswgt
-			customPageCnf = testableMethods.addDepsConfigs( customPageCnf, "resources/widgets/",  ["handlebarswgt"] );
-			expect( customPageCnf.handlebarswgt ).toBeDefined();
+			var customPageCnf = getWidgetConfig( wgtDir, exampleName, true );
 
 			// console.log( customPageCnf )
 			testableMethods.writeTemplate( thisPluginCnf, wgtName, thisWigitor, exampleName, testableMethods.configs.standardPageCnf, wgtDir, dest, customPageCnf );
@@ -248,6 +243,27 @@ describe("test 1 - wigitor testable methods", function() {
 			expect( customPageCnf.helpers.renderPartial ).toBeDefined();
 		}
 	});
+
+
+	function getWidgetConfig( wgtDir, exampleName, includePageConfig ) {
+		// merge standard page config with widget properties
+		var wgtCnf = {}
+			,wgtOpts = fse.readJsonSync( wgtDir + "options.json" )
+		wgtCnf[ wgtOpts.configName ] = fse.readJsonSync( wgtDir + "properties/" + exampleName + ".json" );
+
+		var rtnCnf;
+
+		if( includePageConfig )
+			rtnCnf = _.extend( {}, testableMethods.configs.standardPageCnf, wgtCnf );
+		else
+			rtnCnf = wgtCnf;
+
+		// add config from handlebarswgt
+		rtnCnf = testableMethods.addDepsConfigs( rtnCnf, "resources/widgets/",  ["handlebarswgt"] );
+		expect( rtnCnf.handlebarswgt ).toBeDefined();
+
+		return rtnCnf;
+	}
 
 
 	function lintCSS( done, returnedStr ) {
