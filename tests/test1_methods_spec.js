@@ -316,6 +316,8 @@ describe("test 1 - wigitor testable methods", function() {
 			fse.removeSync( genFile );
 		});
 
+
+		// Just testing 1 handlebars variant, as the conditions don't really relate to the rendering type
 		it("should check that, when 'justContent' is true, an html file is created - handlebarswgt", function() {
 
 			var wgtName = "handlebarswgt";
@@ -331,6 +333,7 @@ describe("test 1 - wigitor testable methods", function() {
 			// clean up
 			fse.removeSync( genFile );
 		});
+		
 
 		it("should check that, when 'justContent' is false, an html file is created and contains template", function() {
 
