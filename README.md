@@ -28,8 +28,6 @@ There's also an `options.json` file in each widget, which contains options for t
 
 2. `templateType` {string}: Either "ejs" or "hbs", depending which template you're using.
 
-3. `wigitor` {false || true/object}: Most of the time this will be a boolean, but instead of true, you can pass an object with the following optional properties:
-> i) `container-classes` {string}: Classes for the containing element. Useful for setting light background `wgtvwr-lightbg` or Bootstrap grid styles. Should be a single string, separated by spaces.
 
 ### README.md
 Use these custom tags to determine where properties button and Github info goes.
@@ -40,7 +38,14 @@ Use these custom tags to determine where properties button and Github info goes.
 This only applies if `options.json -> modifyReadMes` is set to `true`
 
 
-## Grunt options
+## Grunt
+### src
+This should be the folder of the widget you're rendering.
+
+### dest
+This should be the output folder.
+
+### options
 - pluginDir {string}: path to the `grunt-wigitor` plugin directory. Defaults to `node_modules/wigitor`.
 - host: {string}: If running on a server, put the url here. Defaults to an empty string.
 - pathToRoot {string}: path to the project root. Defaults to an empty string. Used to normalise EJS includes. Defaults to an empty string.
@@ -53,8 +58,11 @@ This only applies if `options.json -> modifyReadMes` is set to `true`
 - deps {array or strings}: a list of widgets that this widget depends on. Their configs will be added to the global scope when rendering.
 - multiProps {boolean}: If `true` will search through the widget's `properties` folder and make available all json files as configs.
 - handlebarsPartials {array of objects}: Objects with details of additional handlebars partials needed for this widget. Partials in the widget's root folder will automatically be added, using the naming convention `samplewgt_my-other-file`. Objects must have 2 properties `name` {string} and `path` {string}.
+- containerClasses {string}: Classes for the containing element. Useful for setting light background `wgtvwr-lightbg` or Bootstrap grid styles. Should be a single string, separated by spaces.
+- pageTemplate {string}: Path to your own ejs template. Handlebars not yet supported.
 
 
 Releases
+- 0.1.2: Bug fixes around containerClasses after tested in the wild. Added options 'containerClasses' & 'pageTemplate'.
 - 0.1.1: Minor changes to README.md. Still unstable.
 - 0.1.0: Initial release. Not properly tested yet. Will probably break.

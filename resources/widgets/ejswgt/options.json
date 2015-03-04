@@ -1,7 +1,4 @@
 {
-	"wigitor": {
-		"container-classes": "col-xs-12 col-sm-6 wgtr-lightbg"
-	}
-	,"configName": "ejsWgtCnf"
+	"configName": "ejsWgtCnf"
 	,"templateType": "ejs"
 }

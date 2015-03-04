@@ -39,7 +39,11 @@ module.exports = function(grunt) {
 			,deps: null
 			,multiProps: false
 			,handlebarsPartials: null // this only affects handlebars widgets
+			,containerClasses: null
+			,pageTemplate: null
 		});
+
+		// console.log( config.pathToWidgets )
 
 		// add slash is one doesn't exist
 		if( typeof config.host === "string" ) {
@@ -54,11 +58,7 @@ module.exports = function(grunt) {
 
 		var fileObj = this.files[0];
 
-		if( fileObj.src.length === 0 ) {
-			grunt.log.error( "'"+NS+"' needs at least 1 src directory!".red );
-			done();
-			return;
-		}
+		if( fileObj.src.length === 0 ) throw new Error( "'"+NS+"' needs at least 1 src directory!" );
 
 		// cleans out the old first
 		if( config.cleanDest && grunt.file.exists(fileObj.dest) ) grunt.file.delete( fileObj.dest, {force:true} );
@@ -74,14 +74,8 @@ module.exports = function(grunt) {
 
 			src = src + "/";
 
-			var wgtOpts = grunt.file.readJSON( src + "options.json" );
-
-			var wigitor = wgtOpts[ NS ];
-
-			// only generate demos if widget options specify it
-			if( !wigitor ) return;
-
-			var wgtName = src.split("widgets/")[1].split("/")[0];
+			var wgtOpts = grunt.file.readJSON( src + "options.json" )
+				,wgtName = src.split("widgets/")[1].split("/")[0];
 
 			widgetNameChecks( wgtName );
 
@@ -89,8 +83,6 @@ module.exports = function(grunt) {
 				throw new Error( "Widgets must define their 'configName' inside their 'options.json' file. "+
 					"Stopping demo generaton for " + wgtName + "." );
 			}
-
-			
 
 			if( grunt.option("clear") ) clearReadMeAdditions( src );
 
@@ -100,6 +92,7 @@ module.exports = function(grunt) {
 
 			// Use properties ".json" files to generate demos
 			if( grunt.file.exists(src + "properties") ) {
+
 
 				var thisPageConfig, multiPropsConfig;
 				grunt.file.recurse( src + "properties", function(abspath, rootdir, subdir, filename) {
@@ -241,7 +234,7 @@ module.exports = function(grunt) {
 
 	function writeTemplate( pluginCnf, wgtName, wgtOpts, exampleName, standardPageCnf, wgtDir, dest, customPageCnf ) {
 
-		var wigitor = wgtOpts[ NS ];
+		// var wigitor = wgtOpts[ NS ];
 
 		var wgtContent;
 
@@ -297,13 +290,13 @@ module.exports = function(grunt) {
 			return;
 		}
 
-		var templatePath = pluginCnf.pluginDir + "resources/template.ejs"
-		// console.log( grunt.file.exists( templatePath ), templatePath );
-		if( grunt.file.exists( templatePath ) ) {
+		var pageTemplate = pluginCnf.pageTemplate || pluginCnf.pluginDir + "resources/template.ejs";
+
+		if( grunt.file.exists( pageTemplate ) ) {
 
 			var pageConfig = _.clone( standardPageCnf );
 
-			pageConfig.containerClasses = wigitor["container-classes"]; // allowed to be falsey
+			pageConfig.containerClasses = pluginCnf.containerClasses; // allowed to be falsey
 			pageConfig.filename = pluginCnf.pathToRoot + wgtDir;
 			pageConfig.pagetitle = "Widget '"+wgtName+"' Demo";
 			pageConfig.pagedescription = "Widget '"+wgtName+"' Demo";
@@ -311,7 +304,7 @@ module.exports = function(grunt) {
 			pageConfig.wgtName = wgtName;
 			pageConfig.wgtContent = wgtContent;
 
-			var rendered = ejs.render( grunt.file.read(templatePath), pageConfig);
+			var rendered = ejs.render( grunt.file.read( pageTemplate ), pageConfig);
 
 			// console.log( dest + "/"+ wgtName + "-" + exampleName+".html" );
 			grunt.file.write( dest + "/"+ wgtName + "-" + exampleName+".html", rendered );

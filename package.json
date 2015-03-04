@@ -1,7 +1,7 @@
 {
    "name": "grunt-wigitor"
   ,"description": "A demo builder for 'widgets' - a specific UI module setup"
-  ,"version": "0.1.1"
+  ,"version": "0.1.2"
   ,"author": {
      "name": "Jim Doyle"
     ,"email": "info@jimdoyle.com.au"
