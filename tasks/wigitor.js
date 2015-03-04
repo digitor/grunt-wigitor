@@ -28,7 +28,7 @@ module.exports = function(grunt) {
 			pluginDir: "node_modules/"+NS+"/"
 			,host: ""
 			,pathToRoot: ""
-			,pathToWidgets: "resources/widgets/" // immediate containing folder must be 'widgets'
+			,pathToApp: "app/"
 			,gitHubMsg: ('\n\n## ![Github](resources/img/octocat.png) Github\n'+
 						'You may need to switch branches to see the latest version.\n'+
 						'\n[master - widgets/xxxxwgt](https://github.com/digitor/wigitor/tree/master/resources/widgets/xxxxwgt)')
@@ -42,9 +42,14 @@ module.exports = function(grunt) {
 			,containerClasses: null
 			,pageTemplate: null
 			,strictName: true
+			,widgetDirName: "widgets"
 		});
 
-		// console.log( config.pathToWidgets )
+		 // immediate containing folder must be 'widgets'
+		var pathToWidgets = config.pathToApp + config.widgetDirName + "/";
+
+		if( !fse.existsSync( pathToWidgets ) )
+			throw new Error("The 'widgets' directory could not be found. It should be in your 'pathToApp' and called 'widgets' or customised using 'widgetDirName'.");
 
 		// add slash is one doesn't exist
 		if( typeof config.host === "string" ) {
@@ -73,10 +78,10 @@ module.exports = function(grunt) {
 
 		_.forEach( fileObj.src, function(src) {
 
-			src = src + "/";
+			// src = src + "/";
 
 			var wgtOpts = grunt.file.readJSON( src + "options.json" )
-				,wgtName = src.split("widgets/")[1].split("/")[0];
+				,wgtName = src.split( config.widgetDirName+"/" )[1].split("/")[0];
 
 			widgetNameChecks( wgtName, null, config.strictName );
 
@@ -109,7 +114,7 @@ module.exports = function(grunt) {
 						if( config.multiProps === true && multiPropsConfig )	thisPageConfig = multiPropsConfig;
 						else													thisPageConfig = pageConfig;
 
-						multiPropsConfig = writeDemo( config, wgtName, wgtOpts, exampleName, thisPageConfig, standardPageCnf, src, fileObj.dest, abspath );
+						multiPropsConfig = writeDemo( config, pathToWidgets, wgtName, wgtOpts, exampleName, thisPageConfig, standardPageCnf, src, fileObj.dest, abspath );
 					}
 				}); // end grunt.file.recurse
 
@@ -120,9 +125,9 @@ module.exports = function(grunt) {
 			} else { // If no 'properties' dir, assume config is not needed for the demo
 				var exampleName = "example1";
 				if( config.modifyReadMes === true )
-					readmeAdditions = getDemoLink( wgtName, exampleName, readmeAdditions, fileObj.dest );
+					readmeAdditions = getDemoLink( wgtName, exampleName, readmeAdditions, null, fileObj.dest );
 				
-				writeDemo( config, wgtName, wgtOpts, exampleName, pageConfig, standardPageCnf, src, fileObj.dest );
+				writeDemo( config, pathToWidgets, wgtName, wgtOpts, exampleName, pageConfig, standardPageCnf, src, fileObj.dest );
 			}
 			
 			if( config.modifyReadMes === true && readmeAdditions )
@@ -187,9 +192,9 @@ module.exports = function(grunt) {
 	}
 
 
-	function writeDemo( pluginCnf, wgtName, wgtOpts, exampleName, customPageCnf, standardPageCnf, wgtDir, dest, propertiesJSONPath ) {
+	function writeDemo( pluginCnf, pathToWidgets, wgtName, wgtOpts, exampleName, customPageCnf, standardPageCnf, wgtDir, dest, propertiesJSONPath ) {
 
-		customPageCnf.filename = wgtDir + "x"; // just needs to be 1 level deeper than the widget's directory, so using '/x'
+		customPageCnf.filename = wgtDir + "x/"; // just needs to be 1 level deeper than the widget's directory, so using '/x'
 
 		// If no properties, skip this (probably means there is no config for this widget)
 		if( propertiesJSONPath ) {
@@ -205,7 +210,7 @@ module.exports = function(grunt) {
 		}
 
 		// add configs of other widgets that are specified in pluginCnf.deps
-		if( pluginCnf.deps ) customPageCnf = addDepsConfigs( customPageCnf, pluginCnf.pathToWidgets, pluginCnf.deps );
+		if( pluginCnf.deps ) customPageCnf = addDepsConfigs( customPageCnf, pathToWidgets, pluginCnf.deps );
 
 
 		// console.log( customPageCnf[ wgtName ] );
@@ -298,16 +303,20 @@ module.exports = function(grunt) {
 			var pageConfig = _.clone( standardPageCnf );
 
 			pageConfig.containerClasses = pluginCnf.containerClasses; // allowed to be falsey
-			pageConfig.filename = pluginCnf.pathToRoot + wgtDir;
+
+			// for some reason it needs to be a level deeper than the intended directory, so "x/" used
+			pageConfig.filename = pluginCnf.pathToApp + "x/";
+
 			pageConfig.pagetitle = "Widget '"+wgtName+"' Demo";
 			pageConfig.pagedescription = "Widget '"+wgtName+"' Demo";
 			pageConfig.name = "styleguide";
 			pageConfig.wgtName = wgtName;
 			pageConfig.wgtContent = wgtContent;
+			pageConfig.hasJS = fse.existsSync(wgtDir+"/js/");
 
-			var rendered = ejs.render( grunt.file.read( pageTemplate ), pageConfig);
+			var markup = grunt.file.read( pageTemplate )
+				,rendered = ejs.render( markup, pageConfig);
 
-			// console.log( dest + "/"+ wgtName + "-" + exampleName+".html" );
 			grunt.file.write( dest + "/"+ wgtName + "-" + exampleName+".html", rendered );
 		}
 	}
@@ -316,7 +325,7 @@ module.exports = function(grunt) {
 	function renderPartialHelper(pathToRoot, wgtDir, path, item) {
 		// This is for 'ejs-render' helper includes, so needs standardPageCnf variables
 		var thisPageConfig = _.clone( standardPageCnf );
-		thisPageConfig.filename = wgtDir + "x";
+		thisPageConfig.filename = wgtDir + "x/";
 		item = _.extend( {}, item, thisPageConfig );
 		
 		return ejs.render( grunt.file.read( pathToRoot + path ), item );

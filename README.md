@@ -49,7 +49,7 @@ This should be the output folder.
 - pluginDir {string}: path to the `grunt-wigitor` plugin directory. Defaults to `node_modules/wigitor`.
 - host: {string}: If running on a server, put the url here. Defaults to an empty string.
 - pathToRoot {string}: path to the project root. Defaults to an empty string. Used to normalise EJS includes. Defaults to an empty string.
-- pathToWidgets {string}: path to the folder where you keep your widgets. The last folder must be called `widgets`. Defaults to `resources/widgets/`.
+- pathToApp {string}: path to the root folder where you keep your 'widgets' and other development assets. Defaults to `app/`. 
 - gitHubMsg {string}: Github details to print on your readme. Make null or empty string to omit it. `modifyReadMes:false` will also stop this.
 - cleanDest {boolean}: Clean the `dest` folder before running. Defaults to `false`. Careful with this.
 - modifyReadMes {boolean}: make `true` to insert a bootstrap popover into your widget's `README.md`. Also inserts Github details if `gitHubMsg` set.
@@ -60,9 +60,12 @@ This should be the output folder.
 - handlebarsPartials {array of objects}: Objects with details of additional handlebars partials needed for this widget. Partials in the widget's root folder will automatically be added, using the naming convention `samplewgt_my-other-file`. Objects must have 2 properties `name` {string} and `path` {string}.
 - containerClasses {string}: Classes for the containing element. Useful for setting light background `wgtvwr-lightbg` or Bootstrap grid styles. Should be a single string, separated by spaces.
 - pageTemplate {string}: Path to your own ejs template. Handlebars not yet supported.
+- strictName {boolean}: Whether to apply strict naming convention to widgets - really, whether they must end in `wgt` or not. Defaults to `true`.
+- widgetDirName {string}: The name of your widgets directory. Defaults to "widgets".
 
 
 Releases
+- 0.1.4: Added widgetDirName and bug fix for `dest` arg in `writeDemo` function.
 - 0.1.3: Added 'strictName' option.
 - 0.1.2: Bug fixes around containerClasses after tested in the wild. Added options 'containerClasses' & 'pageTemplate'.
 - 0.1.1: Minor changes to README.md. Still unstable.

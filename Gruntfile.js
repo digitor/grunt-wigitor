@@ -35,7 +35,7 @@ module.exports = function( grunt ) {
         ,wigitor: {
             options: {
                 pathToRoot: ""
-                ,pathToWidgets: "resources/widgets/" // immediate containing folder must be 'widgets'
+                ,pathToApp: "resources/"
                 ,modifyReadMes: true
                 ,justContent: true
                 ,omitScriptTags: true

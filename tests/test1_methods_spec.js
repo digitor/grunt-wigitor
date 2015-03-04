@@ -186,7 +186,7 @@ describe("test 1 - wigitor testable methods", function() {
 			,omitScriptTags: true
 			,pluginDir: ""
 			,pathToRoot: ""
-			,pathToWidgets: "resources/widgets/"
+			,pathToApp: "resources/"
 		}
 		,wgtName = "ejswgt"
 		,wgtDir = "resources/widgets/"+wgtName+"/"
@@ -233,7 +233,7 @@ describe("test 1 - wigitor testable methods", function() {
 			expect( multiPropsConfig ).toBeDefined();
 
 			var propertiesJSONPath = wgtDir+"properties/example2.json";
-			multiPropsConfig = testableMethods.writeDemo( thisPluginCnf, wgtName, wgtOpts, "example2", multiPropsConfig, testableMethods.configs.standardPageCnf, wgtDir, dest, propertiesJSONPath );
+			multiPropsConfig = testableMethods.writeDemo( thisPluginCnf, thisPluginCnf.pathToApp+"widgets/", wgtName, wgtOpts, "example2", multiPropsConfig, testableMethods.configs.standardPageCnf, wgtDir, dest, propertiesJSONPath );
 
 			// this is the normal config, based on example1 - maybe this should be removed?
 			expect( multiPropsConfig[ wgtOpts.configName ] ).toBeDefined();
@@ -283,7 +283,7 @@ describe("test 1 - wigitor testable methods", function() {
 
 			var propertiesJSONPath = propName ? wgtDir+"properties/"+propName+".json" : null;
 
-			return testableMethods.writeDemo( thisPluginCnf, wgtName, wgtOpts, exampleName, customPageCnf, testableMethods.configs.standardPageCnf, wgtDir, dest, propertiesJSONPath );
+			return testableMethods.writeDemo( thisPluginCnf, thisPluginCnf.pathToApp+"widgets/", wgtName, wgtOpts, exampleName, customPageCnf, testableMethods.configs.standardPageCnf, wgtDir, dest, propertiesJSONPath );
 		}
 	});
 
