@@ -32,7 +32,6 @@ module.exports = function(grunt) {
 			,gitHubMsg: ('\n\n## ![Github](resources/img/octocat.png) Github\n'+
 						'You may need to switch branches to see the latest version.\n'+
 						'\n[master - widgets/xxxxwgt](https://github.com/digitor/wigitor/tree/master/resources/widgets/xxxxwgt)')
-			,configName: null // will default to widget name + "Config"
 			,cleanDest: false
 			,modifyReadMes: true
 			,justContent: false // if false, will render with page template
@@ -95,7 +94,7 @@ module.exports = function(grunt) {
 
 			if( grunt.option("clear") ) clearReadMeAdditions( src );
 
-			var readmeAdditions = config.gitHubMsg;
+			var readmeAdditions = config.gitHubMsg || "";
 
 			var pageConfig = _.clone( standardPageCnf );
 

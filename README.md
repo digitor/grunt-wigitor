@@ -1,20 +1,52 @@
-# wigitor
+# Grunt Wigitor
 
 ## Description
 A demo builder for 'widgets' - a specific UI module setup
 
-### options.json
-There's also a "options.json" file in each widget, which contains options for the widget :
+## Widget stucture
+The folder structure of a Wigitor 'widget' should be:
+- parent folder must be `widgets`
+- widget folder must follow this naming convention: 
+  - alphanumeric 
+  - no uppercase characters
+  - no special characters
+  - no underscores or hyphens
+  - must end in `wgt`
+  - eg - `samplewgt`
+- `js` folder should contain a 'main.js'
+- `scss` folder should contain a '_module.scss' and follow SMACSS guidelines for '_state.scss' and '_layout.scss'. '_vars.scss' can also be used.
+- 'options.json' (see explanation below)
+- README.md (see explanation below)
 
+### options.json
+There's also a "options.json" file in each widget, which contains options for the widget:
 
 1. `configName` {string}: This is the name of the config object used when populating the template. It must be unique and should roughly folow the name of the widget with the suffix "Cnf". You can abbreviate if your have a long widget name.
 
 2. `templateType` {string}: Either "ejs" or "hbs", depending which template you're using.
 
 3. `wigitor` {false || true/object}: Most of the time this will be a boolean, but instead of true, you can pass an object with the following optional properties:
+> i) `container-classes` {string}: Classes for the containing element. Useful for setting light background `wgtvwr-lightbg` or Bootstrap grid styles. Should be a single string, separated by spaces.
 
-i) `deps` {array}: An array of widget names that it depends on. `deps` should be defined for any widget that uses a json file from the 'properties' directory of another widget.
+### README.md
+Use these custom tags to determine where properties button and Github info goes.
+```
+<!--START_WIGITOR_ADDITIONS-->
+<!--END_WIGITOR_ADDITIONS-->
+```
+This only applies if `options.json -> modifyReadMes` is set to `true`
 
-ii) `multi-props` {boolean}: Should be `true` if you want the properties of more than one `properties/*.json` file to be available in the widget template during render. 
 
-iii) `container-classes` {string}: Classes for the containing element. Useful for setting light background `wgtvwr-lightbg` or Bootstrap grid styles.
+## Grunt options
+- pluginDir {string}: path to the `grunt-wigitor` plugin directory. Defaults to `node_modules/wigitor`.
+- host: {string}: If running on a server, put the url here. Defaults to an empty string.
+- pathToRoot {string}: path to the project root. Defaults to an empty string. Used to normalise EJS includes. Defaults to an empty string.
+- pathToWidgets {string}: path to the folder where you keep your widgets. The last folder must be called `widgets`. Defaults to `resources/widgets/`.
+- gitHubMsg {string}: Github details to print on your readme. Make null or empty string to omit it. `modifyReadMes:false` will also stop this.
+- cleanDest {boolean}: Clean the `dest` folder before running. Defaults to `false`. Careful with this.
+- modifyReadMes {boolean}: make `true` to insert a bootstrap popover into your widget's `README.md`. Also inserts Github details if `gitHubMsg` set.
+- justContent {boolean}: if `false`, will render with page template, otherwise will render just with the widget markup
+- omitScriptTags {boolean}: if `true` will remove any `<script>` tags from the markup when rendering.
+- deps {array or strings}: a list of widgets that this widget depends on. Their configs will be added to the global scope when rendering.
+- multiProps {boolean}: If `true` will search through the widget's `properties` folder and make available all json files as configs.
+- handlebarsPartials {array of objects}: Objects with details of additional handlebars partials needed for this widget. Partials in the widget's root folder will automatically be added, using the naming convention `samplewgt_my-other-file`. Objects must have 2 properties `name` {string} and `path` {string}.
