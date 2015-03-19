@@ -1,14 +1,14 @@
 {
    "name": "grunt-wigitor"
   ,"description": "A demo builder for 'widgets' - a specific UI module setup"
-  ,"version": "0.1.4"
+  ,"version": "0.1.5"
   ,"author": {
      "name": "Jim Doyle"
     ,"email": "info@jimdoyle.com.au"
   }
   ,"repository": {
      "type": "git"
-    ,"wiki": "https://github.com/digitor/wigitor.git"
+    ,"wiki": "https://github.com/digitor/grunt-wigitor.git"
   }
   ,"engines": {
     "node": ">=0.10.21"

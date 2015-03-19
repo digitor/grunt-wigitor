@@ -43,6 +43,7 @@ module.exports = function(grunt) {
 			,pageTemplate: null
 			,strictName: true
 			,widgetDirName: "widgets"
+			,forceTemplateType: null
 		});
 
 		 // immediate containing folder must be 'widgets'
@@ -242,10 +243,11 @@ module.exports = function(grunt) {
 
 		// var wigitor = wgtOpts[ NS ];
 
-		var wgtContent;
+		var wgtContent
+			,templateType = pluginCnf.forceTemplateType || (wgtOpts.templateType || "ejs");
 
 		// defaults to "ejs"
-		if( !wgtOpts.templateType || wgtOpts.templateType === "ejs" ) {
+		if( templateType === "ejs" ) {
 
 			// This is a polyfill for "grunt-ejs-render" method
 			customPageCnf.helpers = {
