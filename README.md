@@ -66,6 +66,7 @@ This should be the output folder.
 
 
 Releases
+- 0.1.6: Added 'loadJson' helper that allows comments in your JSON files.
 - 0.1.5: Added 'forceTemplateType' and bug fix for `dest` arg in `writeDemo` function.
 - 0.1.4: Added 'widgetDirName' and bug fix for `dest` arg in `writeDemo` function.
 - 0.1.3: Added 'strictName' option.

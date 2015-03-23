@@ -5,7 +5,8 @@ module.exports = function(grunt) {
 		,ejs = require("ejs")
 		,fse = require("fs-extra")
 		,Handlebars = require("handlebars")
-		,_ = require( 'lodash-node' );
+		,_ = require( 'lodash-node' )
+		,jsmin = require("jsmin").jsmin;
 
 	var START_ADD = "<!--START_WIGITOR_ADDITIONS-->"
 		,END_ADD = "<!--END_WIGITOR_VIEWER_ADDITIONS-->";
@@ -81,7 +82,7 @@ module.exports = function(grunt) {
 
 			// src = src + "/";
 
-			var wgtOpts = grunt.file.readJSON( src + "options.json" )
+			var wgtOpts = loadJson( src + "options.json" )
 				,wgtName = src.split( config.widgetDirName+"/" )[1].split("/")[0];
 
 			widgetNameChecks( wgtName, null, config.strictName );
@@ -177,7 +178,7 @@ module.exports = function(grunt) {
 			 * This was a little tricky to get right. The template had to include <pre><code> tags, but keep value of popover
 			 * not as HTML, otherwise line breaks and <img> tags would get rendered as HTML.
 			 */
-			var json = _.escape( JSON.stringify( grunt.file.readJSON(configPath), null, "\t" ) )
+			var json = _.escape( JSON.stringify( loadJson(configPath), null, "\t" ) )
 				,template = _.escape( '<div class="popover" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><pre><code class="popover-content"></code></pre></div>' );
 
 			markup +=	'<button type="button" class="btn btn-sm" '+
@@ -201,7 +202,7 @@ module.exports = function(grunt) {
 		if( propertiesJSONPath ) {
 			// allows the config to be accessed via the 'configName' value or by the wgt name
 
-			var propsConfig = grunt.file.readJSON( propertiesJSONPath );
+			var propsConfig = loadJson( propertiesJSONPath );
 			customPageCnf[ wgtOpts.configName ] = propsConfig;
 
 			if( pluginCnf.multiProps === true ) {
@@ -231,7 +232,7 @@ module.exports = function(grunt) {
 
 				if( filename.lastIndexOf(".json") === filename.length - 5 )
 					customPageCnf[ dep ] = {};
-					customPageCnf[ dep ][ filename.split(".json")[0] ] = grunt.file.readJSON( abspath );
+					customPageCnf[ dep ][ filename.split(".json")[0] ] = loadJson( abspath );
 			});
 		});
 
@@ -387,6 +388,22 @@ module.exports = function(grunt) {
 
 		// write it to disk
 		grunt.file.write( readmeSrc, readmeContent );
+	}
+
+	/**
+	* Allows us to have comments in our JSON without causing errors.
+	* If `keepComments` is true, the result will be a string, and not valid JSON.
+	* `jsmin` used to strip out comments.
+	*/
+	function loadJson( path, keepComments ) {
+
+		var val = fse.readFileSync( path ).toString();
+
+		if( keepComments ) return val;
+		
+		val = jsmin(val);
+
+		return JSON.parse( val );
 	}
 
 	return {
